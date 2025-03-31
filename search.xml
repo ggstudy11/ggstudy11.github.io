@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>redis-复制</title>
+      <link href="/2025/03/31/redis-%E5%A4%8D%E5%88%B6/"/>
+      <url>/2025/03/31/redis-%E5%A4%8D%E5%88%B6/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Chapter15-复制"><a href="#Chapter15-复制" class="headerlink" title="Chapter15 复制"></a>Chapter15 复制</h2><blockquote><p>在Redis中我们可以通过slave of 让一个服务器去复制另一个服务器，这里我们将被复制的服务器称之为主服务器，另一个则为从服务器</p></blockquote><p><strong>Example</strong></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 假设我们有两个服务器127.0.0.1:12345, 127.0.0.1:6379</span></span><br><span class="line">127.0.0.1:12345 &gt; SLAVE OF 127.0.0.1:6379</span><br><span class="line"><span class="comment"># 该命令将12345端口的服务器成为了6379端口服务器的从服务器</span></span><br><span class="line">127.0.0.1:6379 &gt; <span class="built_in">set</span> msg <span class="string">&quot;hello!&quot;</span></span><br><span class="line">127.0.0.1:12345 &gt; get msg</span><br><span class="line"><span class="comment"># 当在主服务器写时，从服务器也能读取到</span></span><br></pre></td></tr></table></figure><p>那么这里必然涉及到了一个问题，就是主从服务器之间的数据一致性。<br>Redis是通过复制的方式进行主从同步的，这里只介绍新版redis的同步方式  </p><h3 id="PSYNC"><a href="#PSYNC" class="headerlink" title="PSYNC"></a>PSYNC</h3><p>PSYNC具有完全复制和增量复制两个操作, 具体来说:</p><ul><li>完全复制用在初次复制的时候</li><li>增量复制用在短暂断线之后的情况</li></ul><ol><li>完全复制</li></ol><p>从服务器向主服务器发送PSYNC命令， 主服务器接收到PSYNC命令后，执行BGSAVE命令，生成RDB发送给从服务器，从服务器接收并载入RDB文件，同时发送在BGSAVE等阶段，新接收的命令，发送给从服务器，从服务器接收并完成同步<br>这里我们可以发现完全复制的开销是很大的：</p><ul><li>BGSAVE命令，消耗主服务器CPU、内存、磁盘IO等资源</li><li>发送RDB命令，占用主服务器大量网络资源</li><li>从服务器接收RDB需要载入，载入时阻塞其他读命令</li></ul><p>因此完全同步的开销非常大</p><ol start="2"><li>增量同步</li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> redis </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 集群 </tag>
+            
+            <tag> 主从复制 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>2025-3-31-日志</title>
       <link href="/2025/03/31/2025-3-31-%E6%97%A5%E5%BF%97/"/>
       <url>/2025/03/31/2025-3-31-%E6%97%A5%E5%BF%97/</url>
