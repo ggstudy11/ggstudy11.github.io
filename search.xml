@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>MIT6.5830-LAB1-SIMPLEDB</title>
+      <link href="/2025/04/01/MIT6.5830-LAB1-SIMPLEDB/"/>
+      <url>/2025/04/01/MIT6.5830-LAB1-SIMPLEDB/</url>
+      
+        <content type="html"><![CDATA[<h2 id="2022秋MIT6-5830lab1实验报告"><a href="#2022秋MIT6-5830lab1实验报告" class="headerlink" title="2022秋MIT6.5830lab1实验报告"></a>2022秋MIT6.5830lab1实验报告</h2><blockquote><p>在该实验中我们可以实现一个基础的database</p></blockquote><ul><li>what we will do in this lab? Tuple、TupleDesc、Catalog and so on</li><li>Remember what we dont do - <strong>transaction</strong>, <strong>locking</strong>, and <strong>recovery</strong></li></ul><h3 id="exercise1"><a href="#exercise1" class="headerlink" title="exercise1"></a>exercise1</h3><blockquote><p>在exercise1中我们需要实现Tuple和TupleDesc</p></blockquote><p><strong>Tuple</strong>: 指的是表中的一行数据，在实验中是由fields组成的，field指的是元数据？大概这么理解，实验中包括了int和string两种类型<br><strong>TupleDesc</strong>: 指的是一个表的行描述符，包括了字段名字和类型<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/7b0d901ab65d575bca987bcc864ab42.png" alt="Illustration"></p><p>可以看到Tuple类中有对TupleDesc类的引用，因此我们先实现TupleDesc<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/5404c55ca659ac45c72fa0e4e00f495.png" alt="TupleDesc"><br>在TupleDesc中已经帮我们实现了hepler class，我们使用一个collection操作TDItem即可</p><p>在Tuple这个类中，我们只需要使用Colletion操作Field即可</p><p><strong>Test Pass</strong>:</p><p><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/4a9c60f43926c3514d0208830cf5d27.png" alt="Tuple"><br>总体而言比较easy</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> MIT </category>
+          
+          <category> DataBase </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> lab </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>2025-3-31-吵架</title>
       <link href="/2025/03/31/2025-3-31-%E5%90%B5%E6%9E%B6/"/>
       <url>/2025/03/31/2025-3-31-%E5%90%B5%E6%9E%B6/</url>
