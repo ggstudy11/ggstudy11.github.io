@@ -13,7 +13,7 @@
       
       <categories>
           
-          <category> MIT, DataBase </category>
+          <category> MIT6.5830 </category>
           
       </categories>
       
@@ -21,6 +21,8 @@
         <tags>
             
             <tag> lab </tag>
+            
+            <tag> database </tag>
             
         </tags>
       
