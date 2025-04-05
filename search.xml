@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>redis-aof</title>
+      <link href="/2025/04/05/redis-aof/"/>
+      <url>/2025/04/05/redis-aof/</url>
+      
+        <content type="html"><![CDATA[<h2 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h2><blockquote><p>除了RDB持久化方法外，Redis还提供了AOF持久化功能，两者的区别在于AOF是通过记录写命令来记录数据库状态的</p></blockquote><h3 id="AOF持久化的实现"><a href="#AOF持久化的实现" class="headerlink" title="AOF持久化的实现"></a>AOF持久化的实现</h3><blockquote><p>AOF持久化功能的实现可以分为APPEND、SYNC、文件写入三个部分</p></blockquote><h4 id="APPEND-命令追加"><a href="#APPEND-命令追加" class="headerlink" title="APPEND 命令追加"></a>APPEND 命令追加</h4><p>当AOF持久化功能开启时，服务端执行完一个写命令后，会以协议格式将被执行的写命令追加到服务器状态的aof_buf缓冲区。即在redisServer结构体中存在一个sds的缓冲区字段</p><h4 id="AOF文件的写入与同步"><a href="#AOF文件的写入与同步" class="headerlink" title="AOF文件的写入与同步"></a>AOF文件的写入与同步</h4><p>我们知道Redis的服务器进程就是一个事件循环，这个循环中的文件事件负责接收客户端的命令请求，当处理完命令请求后，会调用flushAppendOnlyFile的函数，判断是否需要将aof_buf中的内容保存到aof中</p><p>这里aof的写入同步策略分为三种：</p><ul><li>always 即每次执行完写操作后都需要写入并同步到aof文件中</li><li>everysec 指的是，每过一秒进行一次写入并同步</li><li>no 将aof_buf的缓冲区数据写入aof文件，但是不理解同步，而是将同步操作交给操作系统实现</li></ul><blockquote><p>当用户调用write函数时，系统并不会直接将数据写入文件，而是保存在缓冲区，采用一定策略刷新到磁盘中，而提供了fysnc等函数，表示可以直接刷新到磁盘中</p></blockquote><h3 id="AOF-文件的载入与数据还原"><a href="#AOF-文件的载入与数据还原" class="headerlink" title="AOF 文件的载入与数据还原"></a>AOF 文件的载入与数据还原</h3><p>因为AOF文件里面包含了重建数据库状态的所有写命令，所以载入aof文件只需要执行aof中记录的命令即可，具体来说Redis服务器需要创建一个<strong>fake client</strong>（详情可见客户端章节，因为Redis命令必须在客户端上下文中执行，这个伪客户端没有网络连接，只是起到执行命令的效果</p><h3 id="AOF-重写"><a href="#AOF-重写" class="headerlink" title="AOF 重写"></a>AOF 重写</h3><blockquote><p>AOF文件存在内存大的情况，存在两个方面：1. AOF文件需要记录所有写命令 2. AOF文件是记录resp协议的写命令这里是以文本形式</p></blockquote><p>为了解决上述问题，AOF文件提供了重写的功能</p><p><strong>AOF重写</strong><br>举个例子<br>Redis list 键中 使用了多条RPUSH 命令 加入了元素， 可以采用一条RPUSH命令重写<br>这里AOF文件重写不需要对现有的AOF文件进行任何读取、分析、写入操作，而是分析对应的数据库状态，比如新的AOF文件可以通过SADD 替换 多个 ADD操作，一次达到减小AOF文件体积的效果</p><p><strong>AOF后台重写</strong><br>显然AOF重写，调用这个方法的线程会长时间阻塞，因此，像BGSAVE，一样会fork一个子进程进行重写，但是这里就存在了一个问题，子进程在重写时，父进程仍会接收命令，因此导致了不一致，Redis这里采用了AOF重写缓存区的方式记录，Redis服务器执行完一个写命令之后，会把写命令发送给AOF缓冲区和AOF重写缓冲区。</p><p>当子进程完成AOF重写工作之后，它会向父进程发送一个信号，父进程接收到信号后会执行以下几个步骤:</p><ul><li>将AOF重写缓冲区中的数据写入到新AOF文件中</li><li>将新的AOF文件原子性的替换旧的AOF文件</li></ul><p>以上就是<strong>BAREWRITEAOF</strong>命令的实现</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> redis </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>redis-rdb</title>
       <link href="/2025/04/05/redis-rdb/"/>
       <url>/2025/04/05/redis-rdb/</url>
