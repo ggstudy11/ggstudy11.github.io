@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>redis-事件</title>
+      <link href="/2025/04/06/redis-%E4%BA%8B%E4%BB%B6/"/>
+      <url>/2025/04/06/redis-%E4%BA%8B%E4%BB%B6/</url>
+      
+        <content type="html"><![CDATA[<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2>]]></content>
+      
+      
+      <categories>
+          
+          <category> redis </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>redis-aof</title>
       <link href="/2025/04/05/redis-aof/"/>
       <url>/2025/04/05/redis-aof/</url>
