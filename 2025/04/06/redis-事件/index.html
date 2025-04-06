@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="事件">
+    <meta name="description" content="事件 Re’di’s服务器是一个事件驱动程序，服务器需要处理两种事件: 1. 文件事件 2. 事件事件 本文会主要从这两个方面介绍  文件事件 Redis基于Reactor模式开发了自己的网络事件处理器，即文件事件处理器  具体来说: 文件事件处理器通过IO多路复用程序来监听多个套接字，并且根据套接字目前执行的任务为套接字关联不同的事件处理器，当被监听的套接字准备好执行相应操作时，与操作相对应的文">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis-事件">
 <meta property="og:url" content="http://example.com/2025/04/06/redis-%E4%BA%8B%E4%BB%B6/index.html">
 <meta property="og:site_name" content="羊羊和小鱼的小窝">
-<meta property="og:description" content="事件">
+<meta property="og:description" content="事件 Re’di’s服务器是一个事件驱动程序，服务器需要处理两种事件: 1. 文件事件 2. 事件事件 本文会主要从这两个方面介绍  文件事件 Redis基于Reactor模式开发了自己的网络事件处理器，即文件事件处理器  具体来说: 文件事件处理器通过IO多路复用程序来监听多个套接字，并且根据套接字目前执行的任务为套接字关联不同的事件处理器，当被监听的套接字准备好执行相应操作时，与操作相对应的文">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-04-06T15:42:56.000Z">
-<meta property="article:modified_time" content="2025-04-06T15:43:25.710Z">
+<meta property="article:modified_time" content="2025-04-06T15:57:20.403Z">
 <meta property="article:author" content="羊小鱼">
 <meta name="twitter:card" content="summary">
     
@@ -118,7 +118,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">事件</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">事件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%BA%8B%E4%BB%B6"><span class="toc-number">1.1.</span> <span class="toc-text">文件事件</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -163,7 +163,15 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2>
+    <h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><blockquote>
+<p>Re’di’s服务器是一个事件驱动程序，服务器需要处理两种事件: 1. 文件事件 2. 事件事件 本文会主要从这两个方面介绍</p>
+</blockquote>
+<h3 id="文件事件"><a href="#文件事件" class="headerlink" title="文件事件"></a>文件事件</h3><blockquote>
+<p>Redis基于Reactor模式开发了自己的网络事件处理器，即文件事件处理器</p>
+</blockquote>
+<p>具体来说: 文件事件处理器通过IO多路复用程序来监听多个套接字，并且根据套接字目前执行的任务为套接字关联不同的事件处理器，当被监听的套接字准备好执行相应操作时，与操作相对应的文件事件就会产生，此时文件事件处理器就会调用先前绑定在套接字上对应的事件处理器来处理这些事件。</p>
+<p>简单来说就是以IO多路复用同时监听多个套接字，以单线程的方式运行事件处理器</p>
+
   </div>
 </article>
 
@@ -196,7 +204,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">事件</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">事件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%BA%8B%E4%BB%B6"><span class="toc-number">1.1.</span> <span class="toc-text">文件事件</span></a></li></ol></li></ol>
       </div>
     
 

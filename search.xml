@@ -8,7 +8,7 @@
       <link href="/2025/04/06/redis-%E4%BA%8B%E4%BB%B6/"/>
       <url>/2025/04/06/redis-%E4%BA%8B%E4%BB%B6/</url>
       
-        <content type="html"><![CDATA[<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2>]]></content>
+        <content type="html"><![CDATA[<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><blockquote><p>Re’di’s服务器是一个事件驱动程序，服务器需要处理两种事件: 1. 文件事件 2. 事件事件 本文会主要从这两个方面介绍</p></blockquote><h3 id="文件事件"><a href="#文件事件" class="headerlink" title="文件事件"></a>文件事件</h3><blockquote><p>Redis基于Reactor模式开发了自己的网络事件处理器，即文件事件处理器</p></blockquote><p>具体来说: 文件事件处理器通过IO多路复用程序来监听多个套接字，并且根据套接字目前执行的任务为套接字关联不同的事件处理器，当被监听的套接字准备好执行相应操作时，与操作相对应的文件事件就会产生，此时文件事件处理器就会调用先前绑定在套接字上对应的事件处理器来处理这些事件。</p><p>简单来说就是以IO多路复用同时监听多个套接字，以单线程的方式运行事件处理器</p>]]></content>
       
       
       <categories>
