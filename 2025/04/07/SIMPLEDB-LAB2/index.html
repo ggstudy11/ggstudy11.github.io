@@ -16,8 +16,9 @@
 <meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/aae6bdbbb65f1ae79090a80a22ac42c.png">
 <meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/1d26bf04ced3411a19c26ec18edc097.png">
 <meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/cda65c7c76d68022f6de7dd6cc63ba4.png">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/e9cdbce67130d55127cf5df8d7469e3.png">
 <meta property="article:published_time" content="2025-04-07T10:10:15.000Z">
-<meta property="article:modified_time" content="2025-04-07T11:59:13.069Z">
+<meta property="article:modified_time" content="2025-04-07T12:03:35.744Z">
 <meta property="article:author" content="羊小鱼">
 <meta property="article:tag" content="lab">
 <meta property="article:tag" content="database">
@@ -197,7 +198,7 @@
 <p>练习3要求实现HeapPage、HeapFile、BufferPool的delete和insert tuple</p>
 </blockquote>
 <p>HeapPage中insert or delete Tuple直接进行操作即可，但是需要注意header和tuple数组的修改</p>
-<p>HeapFile delete一个tuple首先需要通过BufferPool getPage的方式，获取到对应的HeapPage，然后调用HeapPage的对应方法，<br>需要注意的是如果是insert时没有空的page了，需要新创建一个page然后插入</p>
+<p>HeapFile delete一个tuple首先需要通过BufferPool getPage的方式，获取到对应的HeapPage，然后调用HeapPage的对应方法，<br>需要注意的是如果是insert时没有空的page了，需要新创建一个page然后插入<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/e9cdbce67130d55127cf5df8d7469e3.png" alt="insertTuple"><br>这里给出我的实现</p>
 <p>BufferPool 这里insert or delete tuple需要调用HeapFile的对应方法，并且对返回的page标记为脏页(意味着已经被修改过了)</p>
 <p>这里我们注意到BufferPool和HeapFile的关系好像还是如互相嵌套一般，因为BufferPool其实是server对下层执行引擎获取到的数据的全局访问点。HeapFile的所有操作都会把页刷到bufferPool中，再进行操作</p>
 <blockquote>
