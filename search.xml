@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>SIMPLEDB-LAB2</title>
+      <link href="/2025/04/07/SIMPLEDB-LAB2/"/>
+      <url>/2025/04/07/SIMPLEDB-LAB2/</url>
+      
+        <content type="html"><![CDATA[<h3 id="EXERCISE-1"><a href="#EXERCISE-1" class="headerlink" title="EXERCISE 1"></a>EXERCISE 1</h3><blockquote><p>实现Filter、Join两个操作符</p></blockquote><p>首先我们需要关注Predicate这个类，字面意思上理解，Predicate就是谓词，具体在lab中用来判断tuple的第field个field的val是否op这个operand</p><p>那么Predicate类我们可以很easy的实现，主要需要实现的是filter函数，这里调用field的compare方法即可</p><p>同理JoinPredicate类我们也可以很easy的实现，这里JoinPredicate与Predicate不同之处就是JoinPredicate是用于两个tuple之间而不是一个tuple一个operand。同样也是调用field的compare方法</p><p>接下来我们需要实现Filter, 这是我们最终要实现的操作符，简单来说Filter起到一个where的作用，即过滤语句</p><blockquote><p>这里可以看看已经为我们实现好的GroupBy，这也是一个Operator，参考它的写法</p></blockquote><p>Filter内需要一个Predicate，谓词，同时还需要一个child的OpIterator，需要通过OpIterator来遍历tuple来执行谓词操作<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/aae6bdbbb65f1ae79090a80a22ac42c.png" alt="fetchNext"><br>核心函数实现，其他方法根据doc编写即可，这里需要注意的是open和close都需要调用super方法因为，父类有一个标志位需要开关</p><p>Join同理，这里Join的方法考虑嵌套遍历，遍历第一张表然后遍历第二张表<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/1d26bf04ced3411a19c26ec18edc097.png" alt="fetchNext"></p><blockquote><p>这里可以考虑Join的优化</p></blockquote><h3 id="EXERCISE-2"><a href="#EXERCISE-2" class="headerlink" title="EXERCISE 2"></a>EXERCISE 2</h3><blockquote><p>练习2要求实现的是聚合操作，包括sum，count等，因为String类型的简单只需要count，这里详细介绍int类型的</p></blockquote><p>我将操作抽象出了一个util，包含了operate和getTupleDesc<br>想要记录分组的结果，必然需要通过一个Hash容器，并且这里创建了一个空Field，目的是没有groupBy的col时有一个key<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/cda65c7c76d68022f6de7dd6cc63ba4.png" alt="avg"><br>这里介绍较为复杂的一个op实现，这里的value是int数组，一共有三个元素 0是值 1是总值 2是个数 通过维护这个数组可以得到结果，这里我debug了很久，刚开始只考虑了0，1维护平均值和个数，但是在除的过程中会有精度缺失导致存在偏差</p><h3 id="EXERCISE-3"><a href="#EXERCISE-3" class="headerlink" title="EXERCISE 3"></a>EXERCISE 3</h3><blockquote><p>练习3要求实现HeapPage、HeapFile、BufferPool的delete和insert tuple</p></blockquote><p>HeapPage中insert or delete Tuple直接进行操作即可，但是需要注意header和tuple数组的修改</p><p>HeapFile delete一个tuple首先需要通过BufferPool getPage的方式，获取到对应的HeapPage，然后调用HeapPage的对应方法，<br>需要注意的是如果是insert时没有空的page了，需要新创建一个page然后插入</p><p>BufferPool 这里insert or delete tuple需要调用HeapFile的对应方法，并且对返回的page标记为脏页(意味着已经被修改过了)</p><p>这里我们注意到BufferPool和HeapFile的关系好像还是如互相嵌套一般，因为BufferPool其实是server对下层执行引擎获取到的数据的全局访问点。HeapFile的所有操作都会把页刷到bufferPool中，再进行操作</p><blockquote><p>一些细节，当insert Tuple时要注意recordId的修改，因为这里的tuple可能是从别的表得到然后插入新表的(可以这么理解)，但是delete一定是对应的，否则找不到对应的page</p></blockquote><h3 id="EXERCISE-4"><a href="#EXERCISE-4" class="headerlink" title="EXERCISE 4"></a>EXERCISE 4</h3><blockquote><p>练习4要求我们实现Delete和Insert这两个操作符</p></blockquote><p>练习3的操作是基于Page、File、BufferPool的，对于一个操作符而言(以delete为例)首先就需要OpIterator，通过iterator的遍历进行delete，这里的delete需要调用BufferPool的delete操作</p><p>insert同理，比较简单</p><h3 id="EXERCISE-5"><a href="#EXERCISE-5" class="headerlink" title="EXERCISE 5"></a>EXERCISE 5</h3><blockquote><p>本实验要求实现BufferPool的页面置换算法，这里使用LRU算法秒杀了，比较简单</p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> MIT6.5830 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> lab </tag>
+            
+            <tag> database </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>redis-事件</title>
       <link href="/2025/04/06/redis-%E4%BA%8B%E4%BB%B6/"/>
       <url>/2025/04/06/redis-%E4%BA%8B%E4%BB%B6/</url>
