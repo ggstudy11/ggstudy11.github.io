@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="Chapter 1">
+    <meta name="description" content="Chapter 1OSI参考模型 从下往上介绍各层   物理层负责0、1比特流与电压高低、灯光闪灭之间的切换 数据链路层负责物理层面上互连的、节点之间的通信传输，将0、1序号划分为具有意义的数据帧并传递给对端 网络层将数据传输到目标节点，期间需要跨越多个通过路由相连的网络，此层主要负责寻址和路由选择 传输层起到可靠传输的作用，只在通信双方的节点上进行处理 会话层负责建立和断开通信连接，以及数据分割">
 <meta property="og:type" content="article">
 <meta property="og:title" content="图解TCP&#x2F;IP -Chapter1">
 <meta property="og:url" content="http://example.com/2025/04/10/%E5%9B%BE%E8%A7%A3TCP-IP-Chapter1/index.html">
 <meta property="og:site_name" content="羊羊和小鱼的小窝">
-<meta property="og:description" content="Chapter 1">
+<meta property="og:description" content="Chapter 1OSI参考模型 从下往上介绍各层   物理层负责0、1比特流与电压高低、灯光闪灭之间的切换 数据链路层负责物理层面上互连的、节点之间的通信传输，将0、1序号划分为具有意义的数据帧并传递给对端 网络层将数据传输到目标节点，期间需要跨越多个通过路由相连的网络，此层主要负责寻址和路由选择 传输层起到可靠传输的作用，只在通信双方的节点上进行处理 会话层负责建立和断开通信连接，以及数据分割">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-04-10T12:32:53.000Z">
-<meta property="article:modified_time" content="2025-04-10T12:33:37.372Z">
+<meta property="article:modified_time" content="2025-04-10T13:05:10.557Z">
 <meta property="article:author" content="羊小鱼">
 <meta property="article:tag" content="计算机基础">
 <meta name="twitter:card" content="summary">
@@ -119,7 +119,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter-1"><span class="toc-number">1.</span> <span class="toc-text">Chapter 1</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter-1"><span class="toc-number">1.</span> <span class="toc-text">Chapter 1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OSI%E5%8F%82%E8%80%83%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">OSI参考模型</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -169,7 +169,24 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h2 id="Chapter-1"><a href="#Chapter-1" class="headerlink" title="Chapter 1"></a>Chapter 1</h2>
+    <h2 id="Chapter-1"><a href="#Chapter-1" class="headerlink" title="Chapter 1"></a>Chapter 1</h2><h3 id="OSI参考模型"><a href="#OSI参考模型" class="headerlink" title="OSI参考模型"></a>OSI参考模型</h3><blockquote>
+<p>从下往上介绍各层</p>
+</blockquote>
+<ol>
+<li>物理层<br>负责0、1比特流与电压高低、灯光闪灭之间的切换</li>
+<li>数据链路层<br>负责物理层面上互连的、节点之间的通信传输，将0、1序号划分为具有意义的数据帧并传递给对端</li>
+<li>网络层<br>将数据传输到目标节点，期间需要跨越多个通过路由相连的网络，此层主要负责寻址和路由选择</li>
+<li>传输层<br>起到可靠传输的作用，只在通信双方的节点上进行处理</li>
+<li>会话层<br>负责建立和断开通信连接，以及数据分割等传输相关的管理</li>
+<li>表示层<br>将应用处理的信息转化为适合网络传输的格式，或将来自下一层的数据转化为上层能够处理的格式</li>
+<li>应用层<br>为特定应用提供服务，并且规定应用中通信的细节</li>
+</ol>
+<p><strong>面向连接和面向无连接</strong></p>
+<ul>
+<li>面向连接， 比如打电话，发送信息时需要在通信双方建立通信链路</li>
+<li>面向无连接，比如寄包裹，无需确认对端是否存在，随时发送实时数据</li>
+</ul>
+
   </div>
 </article>
 
@@ -202,7 +219,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter-1"><span class="toc-number">1.</span> <span class="toc-text">Chapter 1</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chapter-1"><span class="toc-number">1.</span> <span class="toc-text">Chapter 1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OSI%E5%8F%82%E8%80%83%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">OSI参考模型</span></a></li></ol></li></ol>
       </div>
     
 
