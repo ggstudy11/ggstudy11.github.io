@@ -4,6 +4,52 @@
   
     
     <entry>
+      <title>SIMPLE-DB LAB3</title>
+      <link href="/2025/04/10/SIMPLE-DB-LAB3/"/>
+      <url>/2025/04/10/SIMPLE-DB-LAB3/</url>
+      
+        <content type="html"><![CDATA[<h2 id="LAB3"><a href="#LAB3" class="headerlink" title="LAB3"></a>LAB3</h2><blockquote><p>本实验主要实现查询优化器，针对连接优化</p></blockquote><p>连接优化：对于r1 join r2 join r3这样的查询存在很多种不同连接顺序的查询计划，本实验主要针对该连接计划，选择出成本最小的连接计划</p><h3 id="EXERCISE-1"><a href="#EXERCISE-1" class="headerlink" title="EXERCISE 1"></a>EXERCISE 1</h3><blockquote><p>实现IntHistogram</p></blockquote><p>IntHistogram是针对int字段的直方图，通过直方图我们可以得到一个谓词在一个字段上的选择性，即经过这个谓词过滤出多少比例元组, 该类没有什么难点，根据hint编写计算逻辑即可，核心逻辑展示：<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/1781c69726b052de4d833000d6671e8.png" alt="estimate"></p><h3 id="EXERCISE-2"><a href="#EXERCISE-2" class="headerlink" title="EXERCISE 2"></a>EXERCISE 2</h3><blockquote><p>实现TableStats</p></blockquote><p>这里TableStats是记录表的数据，主要是包括各个Field的直方图，同样比较简单，这里给出具体的实现逻辑<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/9ee9f65136285bc80bb8e61a027ef7e.png" alt="TableStats"></p><p>需要两次遍历，第一次维护int的max和min数组，第二次进行addValue操作</p><h3 id="EXERCISE-3"><a href="#EXERCISE-3" class="headerlink" title="EXERCISE 3"></a>EXERCISE 3</h3><blockquote><p>实现两个估算成本的方法</p></blockquote><p><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/55f9b39589e7eadd1b7a8e33d08baaf.png" alt="estimate"><br>该方法根据hint中的公式填写即可</p><p><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/989e645fdc16233e6a348a8ddefba5b.png" alt="estimate"><br>根据公式计算即可:</p><ol><li>如果有key，则不超过key的tuple数</li><li>如果是笛卡尔积，乘0.3的经验系数，同时必须大于两个表的任意一个card</li></ol><h3 id="EXERCISE-4"><a href="#EXERCISE-4" class="headerlink" title="EXERCISE 4"></a>EXERCISE 4</h3><blockquote><p>实现orderJoins</p></blockquote><p>这里采用塞林格优化的方法，其实本质上是动态规划，从小集合推导到大集合的最优方法<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/ad7f59a56045e8bb567e2970c7621b1.png" alt="orderJoins"></p><ul><li>planCache，类似记忆化，记录之前的最优方法</li><li>costcard，将plan cost card聚合成一个类</li><li>computeCostAndCardOfSubPlan, 本质是上计算+与当前最优值比较，如果目前方法更优则返回plan否则是null</li></ul><p>这里仔细研究一下computeCostAndCardOfSubPlan的源码</p><p>核心代码：<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/d40e7ac65f741c7110448069640a602.png" alt="core"></p><p>news是去掉joinToRemove的集合，如果空代表着是基础连接，即 r1 join r2, 这里只需要分别计算cost 和 card即可，否则则是子连接 和 一个表的连接，具体来看doesJoin函数检查哪个是已join的连接计划中的，如果是已join的连接计划的表，可以通过，planCache得到对应的cost和card，这样最终得到了两个表的cost和card，通过上述实现的estimateJoinCost函数计算连接成本与bestCost比较从而得到最后的costcard</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> MIT6.5830 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> lab </tag>
+            
+            <tag> database </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Factory Bean详解</title>
+      <link href="/2025/04/09/Factory-Bean%E8%AF%A6%E8%A7%A3/"/>
+      <url>/2025/04/09/Factory-Bean%E8%AF%A6%E8%A7%A3/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Factory-Bean"><a href="#Factory-Bean" class="headerlink" title="Factory Bean"></a>Factory Bean</h2>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> bean </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>SIMPLEDB-LAB2</title>
       <link href="/2025/04/07/SIMPLEDB-LAB2/"/>
       <url>/2025/04/07/SIMPLEDB-LAB2/</url>
