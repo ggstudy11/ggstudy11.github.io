@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>图解TCP/IP -Chapter2</title>
+      <link href="/2025/04/12/%E5%9B%BE%E8%A7%A3TCP-IP-Chapter2/"/>
+      <url>/2025/04/12/%E5%9B%BE%E8%A7%A3TCP-IP-Chapter2/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Chapter2"><a href="#Chapter2" class="headerlink" title="Chapter2"></a>Chapter2</h2><h3 id="TCP-IP-网络模型"><a href="#TCP-IP-网络模型" class="headerlink" title="TCP&#x2F;IP 网络模型"></a>TCP&#x2F;IP 网络模型</h3><ol><li>物理层<br>最底层负责传输的硬件</li><li>网络接口层<br>类似驱动程序，利用以太网中的数据链路层进行通信，在操作系统与硬件之间起桥梁作用的软件</li><li>网络层<br>网络层使用IP，相当于OSI参考模型中的网络层</li></ol><ul><li><p>IP<br>一种不可靠的分组交换协议</p></li><li><p>ICMP<br>IP包在发送途中一旦发生异常导致无法到达对端目标地址时，需要给发送端发送一个发生异常的通知。ICMP就是为了实现这一功能而制定的。它有时也被用来诊断网络的检测状况(Ping)</p></li><li><p>ARP<br>从数据包中的IP地址解析出接收端的地址(MAC地址)的一种协议</p></li></ul><ol start="4"><li>传输层<br>TCP&#x2F;IP传输层有两个具有代表性的协议，该层的功能与OSI参考模型中的传输层类似</li></ol><ul><li><p>TCP<br>TCP是一种面向连接的可靠的传输层协议，它可以保证两端通信主机之间的通信可达。TCP能够正确处理传输过程中丢包、传输顺序混乱等情况。但是需要繁琐的连接建立和断开过程，因此像视频会议一般使用UDP</p></li><li><p>UDP<br>UDP有别于TCP，是一种面向无连接的不可靠的传输层协议。UDP不会关注对端是否收到了传送过去的数据。</p></li></ul><ol start="5"><li>应用层<br>应用层集中了OSI参考模型中的会话层、表示层和应用层</li></ol><h3 id="数据的传输与接收"><a href="#数据的传输与接收" class="headerlink" title="数据的传输与接收"></a>数据的传输与接收</h3><p>例如计算机A向计算机B发送了一封电子邮件，通过这个例子我们解释一下TCP&#x2F;IP通信过程</p><p><strong>发送：</strong></p><ol><li>应用程序处理<br>应用程序做相应的编码处理，然后将应用层的数据发送给下一层TCP</li><li>传输层<br>TCP根据应用层的指示，负责建立连接、发送数据及断开连接。传输层在应用层数据前附加一个TCP首部，包括了源端口号、目标端口号、序列号、确认号等等。并且将封装上TCP首部的包向下传递</li><li>网络层<br>IP将TCP传来的TCP首部和TCP数据合起来当作自己的数据，并在TCP首部的前端加上自己的IP首部。因此IP包中的IP首部后面紧跟着的TCP首部，然后才是数据本身，IP首部中包含了接收端的IP、发送端IP地址，以及用来判断紧随其后的是TCP的数据还是UDP的数据等信息，主机会根据路由控制表决定接下来要让哪台路由器或主机接收生成的IP包，然后将该IP包发送给网络接口的驱动程序，最终由驱动程序接收数据，同时这里会通过ARP查找，得知对端的MAC地址</li><li>网络接口层<br>将包封装以太网首部，内包含源MAC地址、目的MAC地址，同时封装一个以太网尾部内包含FCS用于检验包是否损坏</li></ol><p><strong>接收：</strong></p><ol><li><p>网络接口层<br>主机收到以太网包之后，首先在以太网包首部找到MAC地址，判断是否为发送给自己的包。如果不是发送给自己的包则丢弃这个包。如果是则查找以太网中的类型域比如IP&#x2F;ARP等等，启动对应的处理程序</p></li><li><p>网络层<br>同样首先判断包首部IP是否与自己的IP相匹配，解析上层协议交给对应的处理程序处理</p></li><li><p>传输层<br>首先计算校验和，判断数据是否被破坏，然后检查是否按照序列号接收数据，最后检查端口号，确定具体应用程序，同时会返回一个ack的包</p></li><li><p>应用层<br>接收并解析数据</p></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> network </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> TCP/IP </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>图解TCP/IP -Chapter1</title>
       <link href="/2025/04/10/%E5%9B%BE%E8%A7%A3TCP-IP-Chapter1/"/>
       <url>/2025/04/10/%E5%9B%BE%E8%A7%A3TCP-IP-Chapter1/</url>
