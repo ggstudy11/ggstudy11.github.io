@@ -238,7 +238,7 @@
       <link href="/2025/04/04/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/"/>
       <url>/2025/04/04/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><blockquote><p>Redis服务器是典型的一对多服务器程序</p></blockquote><p>对于每个与服务器进行连接的客户端，服务器都为这些客户端建立了相应的redisClient结构，这个结构体中包含了：</p><ul><li>客户端的套接字描述符</li><li>客户端的名字</li><li>客户端的标志位</li><li>客户端使用数据库的指针，以及该数据库的号码</li><li>客户端正在要执行的命令、命令参数、命令参数的格式，以及指向命令实现函数的指针</li><li>客户端的输入缓冲区和输出缓冲区</li><li>客户端的复制状态信息，以及进行复制所需的数据结构</li><li>客户端执行BRPOP、BLPOP等列表阻塞命令时使用的数据结构</li><li>客户端的事务状态，以及执行WATCH命令时用到的数据机构</li><li>客户端的身份验证标识</li></ul><p>Redis的服务器状态中的clients记录了所有与当前服务器相连的客户端</p>]]></content>
       
       
       <categories>
