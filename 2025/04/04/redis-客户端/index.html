@@ -14,7 +14,7 @@
 <meta property="og:description" content="客户端 Redis服务器是典型的一对多服务器程序  对于每个与服务器进行连接的客户端，服务器都为这些客户端建立了相应的redisClient结构，这个结构体中包含了：  客户端的套接字描述符 客户端的名字 客户端的标志位 客户端使用数据库的指针，以及该数据库的号码 客户端正在要执行的命令、命令参数、命令参数的格式，以及指向命令实现函数的指针 客户端的输入缓冲区和输出缓冲区 客户端的复制状态信息，以">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-04-04T11:04:30.000Z">
-<meta property="article:modified_time" content="2025-04-13T07:12:24.046Z">
+<meta property="article:modified_time" content="2025-04-13T07:31:49.974Z">
 <meta property="article:author" content="羊小鱼">
 <meta name="twitter:card" content="summary">
     
@@ -120,7 +120,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">客户端</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.1.</span> <span class="toc-text">伪客户端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%87%E5%BF%97"><span class="toc-number">1.2.</span> <span class="toc-text">客户端标志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4"><span class="toc-number">1.3.</span> <span class="toc-text">命令</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -182,6 +182,20 @@
 <li>客户端的身份验证标识</li>
 </ul>
 <p>Redis的服务器状态中的clients记录了所有与当前服务器相连的客户端</p>
+<h3 id="伪客户端"><a href="#伪客户端" class="headerlink" title="伪客户端"></a>伪客户端</h3><p>伪客户端处理的命令是来自AOF或LUA脚本</p>
+<h3 id="客户端标志"><a href="#客户端标志" class="headerlink" title="客户端标志"></a>客户端标志</h3><ol>
+<li><p>REDIS_MASTER 标志表示的是客户端代表的一个主服务器，REDIS_SLAVE标志标识客户端代表的是一个从服务器</p>
+</li>
+<li><p>REDIS_LUA_CLIENT代表的是客户端是专门用于处理LUA脚本里面包含的Redis命令的伪客户端</p>
+</li>
+<li><p>REDIS_MULTI 标志表示的是客户端正在执行事务</p>
+</li>
+<li><p>REDIS_FORCE_AOF 强制服务器将当前执行的命令写入到AOF文件</p>
+</li>
+<li><p>REDIS_FORCE_REPL 强制主服务器将当前执行的命令复制给所有从服务器</p>
+</li>
+</ol>
+<h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><p>客户端发送的命令请求保存到客户端状态的queryBuf属性，服务器对命令请求的内容进行解析，并将得出的命令参数以及命令参数的个数分别保存到客户端状态的argv和argc属性，argv属性是一个数组，保存了命令，比如“set”、“val”、“10”。</p>
 
   </div>
 </article>
@@ -215,7 +229,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">客户端</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.1.</span> <span class="toc-text">伪客户端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%87%E5%BF%97"><span class="toc-number">1.2.</span> <span class="toc-text">客户端标志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4"><span class="toc-number">1.3.</span> <span class="toc-text">命令</span></a></li></ol></li></ol>
       </div>
     
 
