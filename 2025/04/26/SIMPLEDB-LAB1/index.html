@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="2022秋MIT6.5830lab1实验报告 在该实验中我们可以实现一个基础的database   what we will do in this lab? Tuple、TupleDesc、Catalog and so on Remember what we dont do - transaction, locking, and recovery  exercise1 在exercise1中我们需">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SIMPLEDB-LAB1">
+<meta property="og:url" content="http://example.com/2025/04/26/SIMPLEDB-LAB1/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="2022秋MIT6.5830lab1实验报告 在该实验中我们可以实现一个基础的database   what we will do in this lab? Tuple、TupleDesc、Catalog and so on Remember what we dont do - transaction, locking, and recovery  exercise1 在exercise1中我们需">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/7b0d901ab65d575bca987bcc864ab42.png">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/5404c55ca659ac45c72fa0e4e00f495.png">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/4a9c60f43926c3514d0208830cf5d27.png">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/6b0457b81c676bd20141946630e6adf.png">
+<meta property="article:published_time" content="2025-04-26T12:33:35.000Z">
+<meta property="article:modified_time" content="2025-04-26T12:34:44.225Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="mit">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="lab">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/7b0d901ab65d575bca987bcc864ab42.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>SIMPLEDB-LAB1</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/26/hello-world/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/SIMPLEDB-LAB1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&text=SIMPLEDB-LAB1"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&is_video=false&description=SIMPLEDB-LAB1"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SIMPLEDB-LAB1&body=Check out this article: http://example.com/2025/04/26/SIMPLEDB-LAB1/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&name=SIMPLEDB-LAB1&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/SIMPLEDB-LAB1/&t=SIMPLEDB-LAB1"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2022%E7%A7%8BMIT6-5830lab1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">2022秋MIT6.5830lab1实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise1"><span class="toc-number">1.1.</span> <span class="toc-text">exercise1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise2"><span class="toc-number">1.2.</span> <span class="toc-text">exercise2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise3"><span class="toc-number">1.3.</span> <span class="toc-text">exercise3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise4"><span class="toc-number">1.4.</span> <span class="toc-text">exercise4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise5"><span class="toc-number">1.5.</span> <span class="toc-text">exercise5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise6"><span class="toc-number">1.6.</span> <span class="toc-text">exercise6</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        SIMPLEDB-LAB1
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">John Doe</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-26T12:33:35.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/simple-db/">simple-db</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/database/" rel="tag">database</a>, <a class="p-category" href="/tags/lab/" rel="tag">lab</a>, <a class="p-category" href="/tags/mit/" rel="tag">mit</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="2022秋MIT6-5830lab1实验报告"><a href="#2022秋MIT6-5830lab1实验报告" class="headerlink" title="2022秋MIT6.5830lab1实验报告"></a>2022秋MIT6.5830lab1实验报告</h2><blockquote>
+<p>在该实验中我们可以实现一个基础的database</p>
+</blockquote>
+<ul>
+<li>what we will do in this lab? Tuple、TupleDesc、Catalog and so on</li>
+<li>Remember what we dont do - <strong>transaction</strong>, <strong>locking</strong>, and <strong>recovery</strong></li>
+</ul>
+<h3 id="exercise1"><a href="#exercise1" class="headerlink" title="exercise1"></a>exercise1</h3><blockquote>
+<p>在exercise1中我们需要实现Tuple和TupleDesc</p>
+</blockquote>
+<p><strong>Tuple</strong>: 指的是表中的一行数据，在实验中是由fields组成的，field指的是元数据？大概这么理解，实验中包括了int和string两种类型<br><strong>TupleDesc</strong>: 指的是一个表的行描述符，包括了字段名字和类型<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/7b0d901ab65d575bca987bcc864ab42.png" alt="Illustration"></p>
+<p>可以看到Tuple类中有对TupleDesc类的引用，因此我们先实现TupleDesc<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/5404c55ca659ac45c72fa0e4e00f495.png" alt="TupleDesc"><br>在TupleDesc中已经帮我们实现了hepler class，我们使用一个collection操作TDItem即可</p>
+<p>在Tuple这个类中，我们只需要使用Colletion操作Field即可</p>
+<p><strong>Test Pass</strong>:</p>
+<p><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/4a9c60f43926c3514d0208830cf5d27.png" alt="Tuple"><br>总体而言比较easy</p>
+<h3 id="exercise2"><a href="#exercise2" class="headerlink" title="exercise2"></a>exercise2</h3><blockquote>
+<p>exercise2要求我们实现catalog</p>
+</blockquote>
+<p>catalog就是数据库中用于索引一个表的目录，主要包括了该表的dbfile即磁盘存储，name即表名，pk即主键值。这里需要注意的是dbfile中的几个方法，getId()获取该表的唯一标识，getTd()获取该表描述符，这些方法在本次实验中会实现。</p>
+<p>我们可以用一个map结构存储表，这里可以建立一个静态内部类帮我我们存储表相关信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">private static class Table &#123;</span><br><span class="line">    public DbFile file;</span><br><span class="line">    public String pkeyField;</span><br><span class="line"></span><br><span class="line">    public Table(DbFile file, String pkeyField) &#123;</span><br><span class="line">        this.file = file;</span><br><span class="line">        this.pkeyField = pkeyField;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Map&lt;String, Table&gt; tables;</span><br></pre></td></tr></table></figure>
+
+<p>其余方法按照hint实现即可</p>
+<h3 id="exercise3"><a href="#exercise3" class="headerlink" title="exercise3"></a>exercise3</h3><blockquote>
+<p>要求我们实现BufferPool的getPage方法</p>
+</blockquote>
+<p>首先我们需要理解BufferPool，在数据库中所有对数据的操作是基于BufferPool的，BufferPool是存放在内存中的，如果直接对磁盘中的数据进行操作IO消耗太大，因此我们可以理解为BufferPool提供了一个全局访问点，而在BufferPool中数据是以页的形式存储的，因此我们需要实现getPage方法提供获取数据页的接口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">final Map&lt;PageId, Page&gt; pages;</span><br><span class="line"></span><br><span class="line">public Page getPage(TransactionId tid, PageId pid, Permissions perm)</span><br><span class="line">        throws TransactionAbortedException, DbException &#123;</span><br><span class="line">    // hint: use DbFile.readPage() to access Page of a DbFile</span><br><span class="line">   if (!pages.containsKey(pid)) &#123;</span><br><span class="line">        if (pages.size() == numPages) throw new DbException(&quot;Buffer Pool has not space!&quot;);</span><br><span class="line">        DbFile file = Database.getCatalog().getDatabaseFile(pid.getTableId());</span><br><span class="line">        pages.put(pid, file.readPage(pid));</span><br><span class="line">   &#125;</span><br><span class="line">   return pages.get(pid);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在该实验中不要求实现BufferPool满后的缺页替换，只需要抛错即可。</p>
+<p>PageId: 是一个page的唯一标识，可以通过PageId getTableId、getPageNumber</p>
+<h3 id="exercise4"><a href="#exercise4" class="headerlink" title="exercise4"></a>exercise4</h3><blockquote>
+<p>需要我们实现HeapPage HeapPageId RecordId</p>
+</blockquote>
+<p>首先我们可以梳理一下数据库中数据的存储结构了</p>
+<ul>
+<li>Field - 包括val和type，是最小的单元</li>
+<li>Tuple - 是Collection of Field，代表一行数据 Tuple通过RecordId唯一标识，RecordId包括了getPageId() 和 getTupeNo()两方法</li>
+<li>Page - 是Tuple的集合，同样的通过PageId唯一标识，包括了getTableId() 和 getPageNo() 两个方法</li>
+<li>DbFile - 是Page的集合，DbFile代表了一张表在磁盘上的存储，通过getId()唯一标识一张表，同时还存储了表的描述符Td</li>
+</ul>
+<blockquote>
+<p>Page Dbfile都是以接口抽象，因为存在多种存储形式，但是Tuple、RecordId是这些不同存储形式相同的底层行数据，行标识因此不用接口抽象</p>
+</blockquote>
+<p>依照上述整理我们一次实现RecordId</p>
+<p>RecordId 内包含 PageId 和 tupleNo两个成员变量<br>HeapPageId 内包含 tableId 和 pageNo 两个成员变量</p>
+<p>最后再实现HeapPage，这里HeapPage略微有点难度，这里给出我的实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">private int getNumTuples() &#123;</span><br><span class="line">    return (BufferPool.getPageSize() * 8) / (td.getSize() * 8 + 1);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private int getHeaderSize() &#123;</span><br><span class="line">    return (int)Math.ceil(getNumTuples() * 1.0 / 8);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 这两个方法按照hint中的公式计算即可，注意getNumTuples这里需要化为double再除，否则会缺失</span><br><span class="line">public boolean isSlotUsed(int i) &#123;</span><br><span class="line">    // byte数组八个tuple一组，每个tuple在它所在的byte下标位标记</span><br><span class="line">    return ((header[i / 8] &gt;&gt; (i % 8)) &amp; 1) == 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public Iterator&lt;Tuple&gt; iterator() &#123;</span><br><span class="line">    return new Iterator&lt;Tuple&gt;() &#123;</span><br><span class="line"></span><br><span class="line">        private int index = -1;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public boolean hasNext() &#123;</span><br><span class="line">            if (index + 1 &lt; numSlots &amp;&amp; isSlotUsed(index + 1)) &#123;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public Tuple next() &#123;</span><br><span class="line">            return hasNext() ? tuples[++index] : null;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void remove() throws UnsupportedOperationException&#123;</span><br><span class="line">            throw new UnsupportedOperationException(&quot;no impletion of this method&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="exercise5"><a href="#exercise5" class="headerlink" title="exercise5"></a>exercise5</h3><blockquote>
+<p>要求实现HeapFile</p>
+</blockquote>
+<p>HeapFile 即 DbFile的一种实现，对应一个数据表，那么包含File(磁盘上的File)、Td(磁盘描述符)</p>
+<p>该实验的难点在于实现Iterator和ReadPage, 这里给出我的代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"> public Page readPage(PageId pid)&#123;</span><br><span class="line">    // 偏移量</span><br><span class="line">    long offset = pid.getPageNumber() * BufferPool.getPageSize();</span><br><span class="line">    byte[] data = new byte[BufferPool.getPageSize()];</span><br><span class="line">    Page page = null;</span><br><span class="line">    // Raf 随机访问文件</span><br><span class="line">    // Raf seek 跳过 offset字节数</span><br><span class="line">    // Raf read 读满 data数组</span><br><span class="line">    try (RandomAccessFile raf = new RandomAccessFile(f, &quot;r&quot;))&#123;</span><br><span class="line">        raf.seek(offset);</span><br><span class="line">        raf.read(data);</span><br><span class="line">        page = new HeapPage((HeapPageId)pid, data);</span><br><span class="line">    &#125; catch(IOException e) &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    return page;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private class HeapFileIterator implements DbFileIterator &#123;</span><br><span class="line"></span><br><span class="line">    private final TransactionId tid;</span><br><span class="line">    private int pgNo = 0;</span><br><span class="line">    private HeapPageId pid = new HeapPageId(getId(), pgNo);</span><br><span class="line">    private Iterator&lt;Tuple&gt; iterator;</span><br><span class="line">    private boolean flag = false;</span><br><span class="line"></span><br><span class="line">    public HeapFileIterator(TransactionId tid) &#123;</span><br><span class="line">        this.tid = tid;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    @Override</span><br><span class="line">    public boolean hasNext() throws DbException, TransactionAbortedException &#123;</span><br><span class="line">        if (!flag) return false;</span><br><span class="line">        if (iterator.hasNext()) return true;</span><br><span class="line">        if (pgNo &lt; numPages() - 1) &#123;</span><br><span class="line">            pid = new HeapPageId(getId(), ++pgNo);</span><br><span class="line">            iterator = ((HeapPage)Database.getBufferPool().getPage(tid, pid, Permissions.READ_ONLY)).iterator();</span><br><span class="line">        &#125;</span><br><span class="line">        return iterator.hasNext();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Tuple next() throws DbException, TransactionAbortedException,</span><br><span class="line">            NoSuchElementException &#123;</span><br><span class="line">        if (hasNext()) &#123;</span><br><span class="line">            return iterator.next();</span><br><span class="line">        &#125;</span><br><span class="line">        throw new NoSuchElementException(&quot;no valid element!&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void open() throws DbException, TransactionAbortedException &#123;</span><br><span class="line">        flag = true;</span><br><span class="line">        iterator = ((HeapPage)Database.getBufferPool().getPage(tid, pid, Permissions.READ_ONLY)).iterator();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void rewind() throws DbException, TransactionAbortedException &#123;</span><br><span class="line">        pgNo = 0;</span><br><span class="line">        pid = new HeapPageId(getId(), pgNo);</span><br><span class="line">        iterator = ((HeapPage)Database.getBufferPool().getPage(tid, pid, Permissions.READ_ONLY)).iterator();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void close() &#123;</span><br><span class="line">        flag = false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里读取Tuple中需要读取对应的Page，其思想还是从BufferPool中读取，我们在前面已经实现了BufferPool的getPage，缺页时从DbFile的readPage获取</p>
+<h3 id="exercise6"><a href="#exercise6" class="headerlink" title="exercise6"></a>exercise6</h3><blockquote>
+<p>实现SeqScan</p>
+</blockquote>
+<p>该实验要求我们从数据库层面实现一种opt，即全表顺序扫描，我们已经层层封装了tuple的Iterator，在这里使用即可，比较easy</p>
+<p>All Tests Pass<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/6b0457b81c676bd20141946630e6adf.png" alt="testResult"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2022%E7%A7%8BMIT6-5830lab1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">2022秋MIT6.5830lab1实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise1"><span class="toc-number">1.1.</span> <span class="toc-text">exercise1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise2"><span class="toc-number">1.2.</span> <span class="toc-text">exercise2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise3"><span class="toc-number">1.3.</span> <span class="toc-text">exercise3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise4"><span class="toc-number">1.4.</span> <span class="toc-text">exercise4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise5"><span class="toc-number">1.5.</span> <span class="toc-text">exercise5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise6"><span class="toc-number">1.6.</span> <span class="toc-text">exercise6</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/SIMPLEDB-LAB1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&text=SIMPLEDB-LAB1"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&is_video=false&description=SIMPLEDB-LAB1"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SIMPLEDB-LAB1&body=Check out this article: http://example.com/2025/04/26/SIMPLEDB-LAB1/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&title=SIMPLEDB-LAB1"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/SIMPLEDB-LAB1/&name=SIMPLEDB-LAB1&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/SIMPLEDB-LAB1/&t=SIMPLEDB-LAB1"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
