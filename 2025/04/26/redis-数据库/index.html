@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="redis-数据库服务器中的数据库Redis服务器将所有数据库保存在redisServer结构中的db数组中 123struct redisServer &#123;    redisDb *db;&#125;  在初始化服务器时，程序会根据服务器状态的dbnum属性来决定应该创建多少个数据库，但是一般默认为16个 切换数据库每个Redis客户端都可以指定使用的数据库，默认使用0号数据库，使用se">
+    <meta name="description" content="数据库服务器中的数据库Redis服务器将所有数据库保存在redisServer结构中的db数组中 123struct redisServer &#123;    redisDb *db;&#125;  在初始化服务器时，程序会根据服务器状态的dbnum属性来决定应该创建多少个数据库，但是一般默认为16个 切换数据库每个Redis客户端都可以指定使用的数据库，默认使用0号数据库，使用select 1">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis-数据库">
 <meta property="og:url" content="http://example.com/2025/04/26/redis-%E6%95%B0%E6%8D%AE%E5%BA%93/index.html">
 <meta property="og:site_name" content="羊小鱼的博客">
-<meta property="og:description" content="redis-数据库服务器中的数据库Redis服务器将所有数据库保存在redisServer结构中的db数组中 123struct redisServer &#123;    redisDb *db;&#125;  在初始化服务器时，程序会根据服务器状态的dbnum属性来决定应该创建多少个数据库，但是一般默认为16个 切换数据库每个Redis客户端都可以指定使用的数据库，默认使用0号数据库，使用se">
+<meta property="og:description" content="数据库服务器中的数据库Redis服务器将所有数据库保存在redisServer结构中的db数组中 123struct redisServer &#123;    redisDb *db;&#125;  在初始化服务器时，程序会根据服务器状态的dbnum属性来决定应该创建多少个数据库，但是一般默认为16个 切换数据库每个Redis客户端都可以指定使用的数据库，默认使用0号数据库，使用select 1">
 <meta property="og:locale">
 <meta property="article:published_time" content="2025-04-26T12:51:50.000Z">
-<meta property="article:modified_time" content="2025-04-26T12:52:25.460Z">
+<meta property="article:modified_time" content="2025-04-26T13:01:03.154Z">
 <meta property="article:author" content="羊小鱼">
 <meta property="article:tag" content="redis">
 <meta property="article:tag" content="数据库">
@@ -116,7 +116,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#redis-%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.</span> <span class="toc-text">redis-数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.1.</span> <span class="toc-text">服务器中的数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.2.</span> <span class="toc-text">切换数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%AE%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.</span> <span class="toc-text">数据库键空间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%87%E6%9C%9F%E9%94%AE"><span class="toc-number">1.4.</span> <span class="toc-text">过期键</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF-RDB-%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%BF%87%E6%9C%9F%E9%94%AE%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-number">1.5.</span> <span class="toc-text">AOF RDB 复制对过期键的处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%80%9A%E7%9F%A5"><span class="toc-number">1.6.</span> <span class="toc-text">数据库通知</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.</span> <span class="toc-text">数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.1.</span> <span class="toc-text">服务器中的数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.2.</span> <span class="toc-text">切换数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%AE%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.</span> <span class="toc-text">数据库键空间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%87%E6%9C%9F%E9%94%AE"><span class="toc-number">1.4.</span> <span class="toc-text">过期键</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF-RDB-%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%BF%87%E6%9C%9F%E9%94%AE%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-number">1.5.</span> <span class="toc-text">AOF RDB 复制对过期键的处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%80%9A%E7%9F%A5"><span class="toc-number">1.6.</span> <span class="toc-text">数据库通知</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -143,7 +143,7 @@
       
         <time datetime="2025-04-26T12:51:50.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
         
-        (Updated: <time datetime="2025-04-26T12:52:25.460Z" class="dt-updated" itemprop="dateModified">2025-04-26</time>)
+        (Updated: <time datetime="2025-04-26T13:01:03.154Z" class="dt-updated" itemprop="dateModified">2025-04-26</time>)
         
       
     </div>
@@ -168,7 +168,7 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h2 id="redis-数据库"><a href="#redis-数据库" class="headerlink" title="redis-数据库"></a>redis-数据库</h2><h3 id="服务器中的数据库"><a href="#服务器中的数据库" class="headerlink" title="服务器中的数据库"></a>服务器中的数据库</h3><p>Redis服务器将所有数据库保存在redisServer结构中的db数组中</p>
+    <h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><h3 id="服务器中的数据库"><a href="#服务器中的数据库" class="headerlink" title="服务器中的数据库"></a>服务器中的数据库</h3><p>Redis服务器将所有数据库保存在redisServer结构中的db数组中</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">struct redisServer &#123;</span><br><span class="line">    redisDb *db;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在初始化服务器时，程序会根据服务器状态的dbnum属性来决定应该创建多少个数据库，但是一般默认为16个</p>
@@ -257,7 +257,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#redis-%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.</span> <span class="toc-text">redis-数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.1.</span> <span class="toc-text">服务器中的数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.2.</span> <span class="toc-text">切换数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%AE%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.</span> <span class="toc-text">数据库键空间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%87%E6%9C%9F%E9%94%AE"><span class="toc-number">1.4.</span> <span class="toc-text">过期键</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF-RDB-%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%BF%87%E6%9C%9F%E9%94%AE%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-number">1.5.</span> <span class="toc-text">AOF RDB 复制对过期键的处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%80%9A%E7%9F%A5"><span class="toc-number">1.6.</span> <span class="toc-text">数据库通知</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.</span> <span class="toc-text">数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.1.</span> <span class="toc-text">服务器中的数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.2.</span> <span class="toc-text">切换数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%AE%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.</span> <span class="toc-text">数据库键空间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%87%E6%9C%9F%E9%94%AE"><span class="toc-number">1.4.</span> <span class="toc-text">过期键</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF-RDB-%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%BF%87%E6%9C%9F%E9%94%AE%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-number">1.5.</span> <span class="toc-text">AOF RDB 复制对过期键的处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%80%9A%E7%9F%A5"><span class="toc-number">1.6.</span> <span class="toc-text">数据库通知</span></a></li></ol></li></ol>
       </div>
     
 

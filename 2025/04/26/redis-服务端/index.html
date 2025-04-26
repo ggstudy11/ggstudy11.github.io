@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang=cn>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="服务端 本章将分为三个部分:1. 服务器处理命令的过程 2. severCron函数 3. 服务器的启动过程  命令请求的执行过程 以set key value为例   客户端向服务端发送命令请求SET KEY VALUE 服务端接收并处理客户端发来的命令请求SET KEY VALUE， 在数据库中进行设置并产生命令回复OK 服务器将命令回复返回给客户端 客户端接收服务器返回的命令回复OK，并将命">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis-服务端">
+<meta property="og:url" content="http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/index.html">
+<meta property="og:site_name" content="羊小鱼的博客">
+<meta property="og:description" content="服务端 本章将分为三个部分:1. 服务器处理命令的过程 2. severCron函数 3. 服务器的启动过程  命令请求的执行过程 以set key value为例   客户端向服务端发送命令请求SET KEY VALUE 服务端接收并处理客户端发来的命令请求SET KEY VALUE， 在数据库中进行设置并产生命令回复OK 服务器将命令回复返回给客户端 客户端接收服务器返回的命令回复OK，并将命">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-04-26T13:01:57.000Z">
+<meta property="article:modified_time" content="2025-04-26T13:02:23.386Z">
+<meta property="article:author" content="羊小鱼">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="服务端">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>redis-服务端</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/04/26/what-is-rag/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/26/simpledb-lab3/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&text=redis-服务端"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&is_video=false&description=redis-服务端"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis-服务端&body=Check out this article: http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&name=redis-服务端&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&t=redis-服务端"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%AF%B7%E6%B1%82%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">命令请求的执行过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8F%91%E9%80%81%E5%91%BD%E4%BB%A4%E8%AF%B7%E6%B1%82"><span class="toc-number">1.1.1.</span> <span class="toc-text">1. 发送命令请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%AF%BB%E5%8F%96%E5%91%BD%E4%BB%A4%E8%AF%B7%E6%B1%82"><span class="toc-number">1.1.2.</span> <span class="toc-text">2. 读取命令请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="toc-number">1.1.3.</span> <span class="toc-text">3. 命令执行器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%B0%86%E5%91%BD%E4%BB%A4%E5%9B%9E%E5%A4%8D%E5%8F%91%E9%80%81%E7%BB%99%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.1.4.</span> <span class="toc-text">4. 将命令回复发送给客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8E%A5%E6%94%B6%E5%B9%B6%E6%89%93%E5%8D%B0%E5%91%BD%E4%BB%A4%E5%9B%9E%E5%A4%8D"><span class="toc-number">1.1.5.</span> <span class="toc-text">5. 客户端接收并打印命令回复</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#serverCron%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.</span> <span class="toc-text">serverCron函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%97%B6%E9%97%B4%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">更新服务器时间缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0LRU%E6%97%B6%E9%92%9F"><span class="toc-number">1.2.2.</span> <span class="toc-text">更新LRU时钟</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E6%AF%8F%E7%A7%92%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E7%9A%84%E6%AC%A1%E6%95%B0"><span class="toc-number">1.2.3.</span> <span class="toc-text">更新服务器中每秒执行命令的次数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%86%85%E5%AD%98%E5%B3%B0%E5%80%BC%E7%9A%84%E8%AE%B0%E5%BD%95"><span class="toc-number">1.2.4.</span> <span class="toc-text">更新服务器内存峰值的记录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%84%E7%90%86SIGTERM%E4%BF%A1%E5%8F%B7"><span class="toc-number">1.2.5.</span> <span class="toc-text">处理SIGTERM信号</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%A1%E7%90%86%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B5%84%E6%BA%90"><span class="toc-number">1.2.6.</span> <span class="toc-text">管理客户端资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%B5%84%E6%BA%90"><span class="toc-number">1.2.7.</span> <span class="toc-text">管理数据库资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E6%8C%81%E4%B9%85%E5%8C%96%E6%93%8D%E4%BD%9C%E7%9A%84%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81"><span class="toc-number">1.2.8.</span> <span class="toc-text">检查持久化操作的运行状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86AOF%E7%BC%93%E5%86%B2%E5%8C%BA%E5%86%85%E5%AE%B9%E5%86%99%E5%85%A5AOF%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.9.</span> <span class="toc-text">将AOF缓冲区内容写入AOF文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E5%BC%82%E6%AD%A5%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.2.10.</span> <span class="toc-text">关闭异步客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A2%9E%E5%8A%A0cronloops%E8%AE%A1%E6%95%B0%E5%99%A8%E7%9A%84%E5%80%BC"><span class="toc-number">1.2.11.</span> <span class="toc-text">增加cronloops计数器的值</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.3.</span> <span class="toc-text">初始化服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%8A%B6%E6%80%81%E9%BB%98%E8%AE%A4%E7%8A%B6%E6%80%81"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. 初始化服务器状态默认状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%BD%BD%E5%85%A5%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. 载入配置项</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 初始化服务器数据结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%BF%98%E5%8E%9F%E6%95%B0%E6%8D%AE%E5%BA%93%E7%8A%B6%E6%80%81"><span class="toc-number">1.3.4.</span> <span class="toc-text">4. 还原数据库状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E5%BC%80%E5%A7%8B%E6%89%A7%E8%A1%8C%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF"><span class="toc-number">1.3.5.</span> <span class="toc-text">5. 开始执行事件循环</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        redis-服务端
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">羊小鱼</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-26T13:01:57.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
+        
+        (Updated: <time datetime="2025-04-26T13:02:23.386Z" class="dt-updated" itemprop="dateModified">2025-04-26</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/redis%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/">redis的设计与实现</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/redis/" rel="tag">redis</a>, <a class="p-category" href="/tags/%E6%9C%8D%E5%8A%A1%E7%AB%AF/" rel="tag">服务端</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h2><blockquote>
+<p>本章将分为三个部分:1. 服务器处理命令的过程 2. severCron函数 3. 服务器的启动过程</p>
+</blockquote>
+<h3 id="命令请求的执行过程"><a href="#命令请求的执行过程" class="headerlink" title="命令请求的执行过程"></a>命令请求的执行过程</h3><blockquote>
+<p>以set key value为例</p>
+</blockquote>
+<ol>
+<li>客户端向服务端发送命令请求SET KEY VALUE</li>
+<li>服务端接收并处理客户端发来的命令请求SET KEY VALUE， 在数据库中进行设置并产生命令回复OK</li>
+<li>服务器将命令回复返回给客户端</li>
+<li>客户端接收服务器返回的命令回复OK，并将命令回复打印给用户观看</li>
+</ol>
+<h4 id="1-发送命令请求"><a href="#1-发送命令请求" class="headerlink" title="1. 发送命令请求"></a>1. 发送命令请求</h4><p>Redis服务器的请求来自Redis客户端，当用户在客户端中键入一个命令请求时，客户端会将这个命令请求转化为协议格式，发送给服务器</p>
+<h4 id="2-读取命令请求"><a href="#2-读取命令请求" class="headerlink" title="2. 读取命令请求"></a>2. 读取命令请求</h4><p>当客户端与服务端之间的连接套接字因为客户端的写入而可读时，服务器将调用命令请求处理器来执行以下操作</p>
+<ol>
+<li>读取套接字中协议格式的命令请求，将其保存到客户端状态的输入缓冲区</li>
+<li>对输入缓冲区中的命令请求进行分析，提取出命令请求中包含的命令参数和命令参数的格式保存到客户端状态中，可以在客户端那一节看到</li>
+<li>调用命令执行器，执行客户端指定的命令</li>
+</ol>
+<h4 id="3-命令执行器"><a href="#3-命令执行器" class="headerlink" title="3. 命令执行器"></a>3. 命令执行器</h4><ol>
+<li>查找命令的实现<br>命令执行器第一件事就是根据客户端状态中命令参数的第一个参数，即“SET”的命令操作，在命令表(<strong>commandtable</strong>)中查找参数对应的命令</li>
+</ol>
+<p>命令表：一个字典，键为命令名字符串，值为rediscommand结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">struct redisCommand &#123;</span><br><span class="line">    char *name;</span><br><span class="line">    /* 函数指针，指向命令的实现函数*/</span><br><span class="line">    redisCommandProc *pro;</span><br><span class="line">    /* 标志位 */</span><br><span class="line">    char *sflags;</span><br><span class="line">    long long calss;</span><br><span class="line">    long long millisecondes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>标志位包括: ‘r’ 只读命令， ‘w’写入命令等等给</p>
+<ol>
+<li>执行预备操作<br>在执行命令前，还有一些操作：</li>
+</ol>
+<ul>
+<li>判断是否能找到对应命令</li>
+<li>判断命令参数个数</li>
+<li>身份验证是否通过</li>
+<li>…<br>这里不过赘述</li>
+</ul>
+<ol>
+<li>命令执行<br>在前面我们已经得到了执行该命令的参数，该命令的实现函数，进行调用即可</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">client -&gt; cmd -&gt; proc(client);</span><br></pre></td></tr></table></figure>
+
+<p>被调用的命令实现函数会执行指定的操作，并产生相应的命令回复，这些回复都会被保存在客户端状态的输出缓冲区中。</p>
+<ol>
+<li><p>命令执行后续操作</p>
+<blockquote>
+<p>做一些收尾工作</p>
+</blockquote>
+</li>
+</ol>
+<ul>
+<li>如果服务器开启了慢查询日志功能，检查是否需要添加慢查询记录</li>
+<li>更新命令执行所需要的时间</li>
+<li>AOF持久化功能，追加写入AOF</li>
+<li>主从架构中，将该命令传播给其他从服务器</li>
+</ul>
+<h4 id="4-将命令回复发送给客户端"><a href="#4-将命令回复发送给客户端" class="headerlink" title="4. 将命令回复发送给客户端"></a>4. 将命令回复发送给客户端</h4><p>命令实现函数会将命令回复保存到客户端的输出缓冲区里面，并为客户端的套接字关联命令回复处理器, 当客户端的套接字变为可写状态时，服务器就会执行命令回复处理器，将保存在客户端输出缓冲区的中命令回复发送给客户端</p>
+<h4 id="5-客户端接收并打印命令回复"><a href="#5-客户端接收并打印命令回复" class="headerlink" title="5. 客户端接收并打印命令回复"></a>5. 客户端接收并打印命令回复</h4><p>客户端接收命令打印命令回复</p>
+<h3 id="serverCron函数"><a href="#serverCron函数" class="headerlink" title="serverCron函数"></a>serverCron函数</h3><blockquote>
+<p>serverCron函数默认每隔100ms执行一次，这个函数负责管理服务器资源，并保持服务器的良好运行</p>
+</blockquote>
+<h4 id="更新服务器时间缓存"><a href="#更新服务器时间缓存" class="headerlink" title="更新服务器时间缓存"></a>更新服务器时间缓存</h4><p>Redis服务器中有不少功能需要获取系统的当前时间，而每次获取系统的当前时间都需要执行一次系统调用，为了减少系统调用的次数，对于一些对时间精度要求不是很高的场景使用时间的缓存</p>
+<ul>
+<li>对于打印日志、更新服务器LRU时钟等等对时间精度要求不是很高的情况下采用缓存时间</li>
+<li>对于为键设置过期时间，添加慢查询日志这种需要高精度时间的功能来说，服务器会再次执行系统调用而不是当前时间</li>
+</ul>
+<h4 id="更新LRU时钟"><a href="#更新LRU时钟" class="headerlink" title="更新LRU时钟"></a>更新LRU时钟</h4><p>简单来说就是，因为LRU策略需要记录键被访问的时间，如果采用系统调用的方式获取时间，那么开销比较大，这里记录了系统的LRU时钟，每100ms更新，在这100ms的周期中，所有键被访问都是使用当前系统的LRU时钟</p>
+<h4 id="更新服务器中每秒执行命令的次数"><a href="#更新服务器中每秒执行命令的次数" class="headerlink" title="更新服务器中每秒执行命令的次数"></a>更新服务器中每秒执行命令的次数</h4><h4 id="更新服务器内存峰值的记录"><a href="#更新服务器内存峰值的记录" class="headerlink" title="更新服务器内存峰值的记录"></a>更新服务器内存峰值的记录</h4><h4 id="处理SIGTERM信号"><a href="#处理SIGTERM信号" class="headerlink" title="处理SIGTERM信号"></a>处理SIGTERM信号</h4><p>Redis会为服务器进程的SIGTERM信号关联处理器sigtermHandler函数，这个信号处理器负责在服务器接到SIGTERM信号时，打开服务器状态的shutdown_asap标识，当每次serverCron函数运行时，都会检查这个标识，决定是否关闭服务器(在关闭服务器前会执行RDB持久化操作)</p>
+<h4 id="管理客户端资源"><a href="#管理客户端资源" class="headerlink" title="管理客户端资源"></a>管理客户端资源</h4><p>调用clientCron函数，如果客户端连接超时则释放，如果输入缓冲区大小超过长度释放当前客户端输入缓冲区，重新创建一个默认大小的输入缓冲区</p>
+<h4 id="管理数据库资源"><a href="#管理数据库资源" class="headerlink" title="管理数据库资源"></a>管理数据库资源</h4><p>调用databaseCron函数，检查过期键等</p>
+<h4 id="检查持久化操作的运行状态"><a href="#检查持久化操作的运行状态" class="headerlink" title="检查持久化操作的运行状态"></a>检查持久化操作的运行状态</h4><p>如果没有在执行任务持久化操作：</p>
+<ol>
+<li>BGREWRITEAOF被延迟？执行BGREWRITEAOF</li>
+<li>自动保存条件是否满足？执行BGSAVE</li>
+<li>AOF重写条件是否满足？执行BGREWRITEAOF</li>
+</ol>
+<h4 id="将AOF缓冲区内容写入AOF文件"><a href="#将AOF缓冲区内容写入AOF文件" class="headerlink" title="将AOF缓冲区内容写入AOF文件"></a>将AOF缓冲区内容写入AOF文件</h4><h4 id="关闭异步客户端"><a href="#关闭异步客户端" class="headerlink" title="关闭异步客户端"></a>关闭异步客户端</h4><h4 id="增加cronloops计数器的值"><a href="#增加cronloops计数器的值" class="headerlink" title="增加cronloops计数器的值"></a>增加cronloops计数器的值</h4><blockquote>
+<p>可能在某些serverCron执行了几次后执行的函数中使用</p>
+</blockquote>
+<h3 id="初始化服务器"><a href="#初始化服务器" class="headerlink" title="初始化服务器"></a>初始化服务器</h3><blockquote>
+<p>初始化服务器状态、接收用户指定服务器配置、创建对应的数据结构和网络连接等</p>
+</blockquote>
+<h4 id="1-初始化服务器状态默认状态"><a href="#1-初始化服务器状态默认状态" class="headerlink" title="1. 初始化服务器状态默认状态"></a>1. 初始化服务器状态默认状态</h4><p>创建一个redisServer的结构体并且赋值默认值，调用initServerConfig函数</p>
+<h4 id="2-载入配置项"><a href="#2-载入配置项" class="headerlink" title="2. 载入配置项"></a>2. 载入配置项</h4><p>在调用initServerConfig函数初始化server变量后哦，就会开始载入用户给定的配置参数和配置文件，并根据用户设定的配置，对server变量相关属性的值进行修改</p>
+<h4 id="3-初始化服务器数据结构"><a href="#3-初始化服务器数据结构" class="headerlink" title="3. 初始化服务器数据结构"></a>3. 初始化服务器数据结构</h4><ul>
+<li>clients链表</li>
+<li>db数组<br>调用initServer函数对这些数据结构初始化，同时创建了一些常量，比如回复的“OK”等等给，打开服务器的监听窗口等</li>
+</ul>
+<h4 id="4-还原数据库状态"><a href="#4-还原数据库状态" class="headerlink" title="4. 还原数据库状态"></a>4. 还原数据库状态</h4><p>服务器载入RDB文件或者AOF文件吗，根据文件记录的内容来还原服务器的数据库状态。如果有AOF优先AOF，否则RDB文件</p>
+<h4 id="5-开始执行事件循环"><a href="#5-开始执行事件循环" class="headerlink" title="5. 开始执行事件循环"></a>5. 开始执行事件循环</h4><p>接收连接请求，执行命令</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%AF%B7%E6%B1%82%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">命令请求的执行过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8F%91%E9%80%81%E5%91%BD%E4%BB%A4%E8%AF%B7%E6%B1%82"><span class="toc-number">1.1.1.</span> <span class="toc-text">1. 发送命令请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%AF%BB%E5%8F%96%E5%91%BD%E4%BB%A4%E8%AF%B7%E6%B1%82"><span class="toc-number">1.1.2.</span> <span class="toc-text">2. 读取命令请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="toc-number">1.1.3.</span> <span class="toc-text">3. 命令执行器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%B0%86%E5%91%BD%E4%BB%A4%E5%9B%9E%E5%A4%8D%E5%8F%91%E9%80%81%E7%BB%99%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.1.4.</span> <span class="toc-text">4. 将命令回复发送给客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8E%A5%E6%94%B6%E5%B9%B6%E6%89%93%E5%8D%B0%E5%91%BD%E4%BB%A4%E5%9B%9E%E5%A4%8D"><span class="toc-number">1.1.5.</span> <span class="toc-text">5. 客户端接收并打印命令回复</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#serverCron%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.</span> <span class="toc-text">serverCron函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%97%B6%E9%97%B4%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">更新服务器时间缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0LRU%E6%97%B6%E9%92%9F"><span class="toc-number">1.2.2.</span> <span class="toc-text">更新LRU时钟</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E6%AF%8F%E7%A7%92%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E7%9A%84%E6%AC%A1%E6%95%B0"><span class="toc-number">1.2.3.</span> <span class="toc-text">更新服务器中每秒执行命令的次数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%86%85%E5%AD%98%E5%B3%B0%E5%80%BC%E7%9A%84%E8%AE%B0%E5%BD%95"><span class="toc-number">1.2.4.</span> <span class="toc-text">更新服务器内存峰值的记录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%84%E7%90%86SIGTERM%E4%BF%A1%E5%8F%B7"><span class="toc-number">1.2.5.</span> <span class="toc-text">处理SIGTERM信号</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%A1%E7%90%86%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B5%84%E6%BA%90"><span class="toc-number">1.2.6.</span> <span class="toc-text">管理客户端资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%B5%84%E6%BA%90"><span class="toc-number">1.2.7.</span> <span class="toc-text">管理数据库资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E6%8C%81%E4%B9%85%E5%8C%96%E6%93%8D%E4%BD%9C%E7%9A%84%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81"><span class="toc-number">1.2.8.</span> <span class="toc-text">检查持久化操作的运行状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86AOF%E7%BC%93%E5%86%B2%E5%8C%BA%E5%86%85%E5%AE%B9%E5%86%99%E5%85%A5AOF%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.9.</span> <span class="toc-text">将AOF缓冲区内容写入AOF文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E5%BC%82%E6%AD%A5%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.2.10.</span> <span class="toc-text">关闭异步客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A2%9E%E5%8A%A0cronloops%E8%AE%A1%E6%95%B0%E5%99%A8%E7%9A%84%E5%80%BC"><span class="toc-number">1.2.11.</span> <span class="toc-text">增加cronloops计数器的值</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.3.</span> <span class="toc-text">初始化服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%8A%B6%E6%80%81%E9%BB%98%E8%AE%A4%E7%8A%B6%E6%80%81"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. 初始化服务器状态默认状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%BD%BD%E5%85%A5%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. 载入配置项</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 初始化服务器数据结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%BF%98%E5%8E%9F%E6%95%B0%E6%8D%AE%E5%BA%93%E7%8A%B6%E6%80%81"><span class="toc-number">1.3.4.</span> <span class="toc-text">4. 还原数据库状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E5%BC%80%E5%A7%8B%E6%89%A7%E8%A1%8C%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF"><span class="toc-number">1.3.5.</span> <span class="toc-text">5. 开始执行事件循环</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&text=redis-服务端"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&is_video=false&description=redis-服务端"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis-服务端&body=Check out this article: http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&title=redis-服务端"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&name=redis-服务端&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/redis-%E6%9C%8D%E5%8A%A1%E7%AB%AF/&t=redis-服务端"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    羊小鱼
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

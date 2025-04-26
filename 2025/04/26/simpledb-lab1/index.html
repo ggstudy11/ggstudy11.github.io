@@ -6,19 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="2022秋MIT6.5830lab1实验报告 在该实验中我们可以实现一个基础的database   what we will do in this lab? Tuple、TupleDesc、Catalog and so on Remember what we dont do - transaction, locking, and recovery  exercise1 在exercise1中我们需">
+    <meta name="description" content="2022秋MIT6.830lab1实验报告 在该实验中我们可以实现一个基础的database   what we will do in this lab? Tuple、TupleDesc、Catalog and so on Remember what we dont do - transaction, locking, and recovery  exercise1 在exercise1中我们需要">
 <meta property="og:type" content="article">
 <meta property="og:title" content="simpledb-lab1">
 <meta property="og:url" content="http://example.com/2025/04/26/simpledb-lab1/index.html">
 <meta property="og:site_name" content="羊小鱼的博客">
-<meta property="og:description" content="2022秋MIT6.5830lab1实验报告 在该实验中我们可以实现一个基础的database   what we will do in this lab? Tuple、TupleDesc、Catalog and so on Remember what we dont do - transaction, locking, and recovery  exercise1 在exercise1中我们需">
+<meta property="og:description" content="2022秋MIT6.830lab1实验报告 在该实验中我们可以实现一个基础的database   what we will do in this lab? Tuple、TupleDesc、Catalog and so on Remember what we dont do - transaction, locking, and recovery  exercise1 在exercise1中我们需要">
 <meta property="og:locale">
 <meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/7b0d901ab65d575bca987bcc864ab42.png">
 <meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/5404c55ca659ac45c72fa0e4e00f495.png">
 <meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/4a9c60f43926c3514d0208830cf5d27.png">
 <meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/6b0457b81c676bd20141946630e6adf.png">
 <meta property="article:published_time" content="2025-04-26T12:33:35.000Z">
-<meta property="article:modified_time" content="2025-04-26T12:55:47.543Z">
+<meta property="article:modified_time" content="2025-04-26T13:01:02.238Z">
 <meta property="article:author" content="羊小鱼">
 <meta property="article:tag" content="mit">
 <meta property="article:tag" content="database">
@@ -120,7 +120,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2022%E7%A7%8BMIT6-5830lab1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">2022秋MIT6.5830lab1实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise1"><span class="toc-number">1.1.</span> <span class="toc-text">exercise1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise2"><span class="toc-number">1.2.</span> <span class="toc-text">exercise2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise3"><span class="toc-number">1.3.</span> <span class="toc-text">exercise3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise4"><span class="toc-number">1.4.</span> <span class="toc-text">exercise4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise5"><span class="toc-number">1.5.</span> <span class="toc-text">exercise5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise6"><span class="toc-number">1.6.</span> <span class="toc-text">exercise6</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2022%E7%A7%8BMIT6-830lab1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">2022秋MIT6.830lab1实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise1"><span class="toc-number">1.1.</span> <span class="toc-text">exercise1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise2"><span class="toc-number">1.2.</span> <span class="toc-text">exercise2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise3"><span class="toc-number">1.3.</span> <span class="toc-text">exercise3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise4"><span class="toc-number">1.4.</span> <span class="toc-text">exercise4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise5"><span class="toc-number">1.5.</span> <span class="toc-text">exercise5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise6"><span class="toc-number">1.6.</span> <span class="toc-text">exercise6</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -147,7 +147,7 @@
       
         <time datetime="2025-04-26T12:33:35.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
         
-        (Updated: <time datetime="2025-04-26T12:55:47.543Z" class="dt-updated" itemprop="dateModified">2025-04-26</time>)
+        (Updated: <time datetime="2025-04-26T13:01:02.238Z" class="dt-updated" itemprop="dateModified">2025-04-26</time>)
         
       
     </div>
@@ -172,7 +172,7 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h2 id="2022秋MIT6-5830lab1实验报告"><a href="#2022秋MIT6-5830lab1实验报告" class="headerlink" title="2022秋MIT6.5830lab1实验报告"></a>2022秋MIT6.5830lab1实验报告</h2><blockquote>
+    <h2 id="2022秋MIT6-830lab1实验报告"><a href="#2022秋MIT6-830lab1实验报告" class="headerlink" title="2022秋MIT6.830lab1实验报告"></a>2022秋MIT6.830lab1实验报告</h2><blockquote>
 <p>在该实验中我们可以实现一个基础的database</p>
 </blockquote>
 <ul>
@@ -261,7 +261,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2022%E7%A7%8BMIT6-5830lab1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">2022秋MIT6.5830lab1实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise1"><span class="toc-number">1.1.</span> <span class="toc-text">exercise1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise2"><span class="toc-number">1.2.</span> <span class="toc-text">exercise2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise3"><span class="toc-number">1.3.</span> <span class="toc-text">exercise3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise4"><span class="toc-number">1.4.</span> <span class="toc-text">exercise4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise5"><span class="toc-number">1.5.</span> <span class="toc-text">exercise5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise6"><span class="toc-number">1.6.</span> <span class="toc-text">exercise6</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2022%E7%A7%8BMIT6-830lab1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A"><span class="toc-number">1.</span> <span class="toc-text">2022秋MIT6.830lab1实验报告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise1"><span class="toc-number">1.1.</span> <span class="toc-text">exercise1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise2"><span class="toc-number">1.2.</span> <span class="toc-text">exercise2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise3"><span class="toc-number">1.3.</span> <span class="toc-text">exercise3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise4"><span class="toc-number">1.4.</span> <span class="toc-text">exercise4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise5"><span class="toc-number">1.5.</span> <span class="toc-text">exercise5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exercise6"><span class="toc-number">1.6.</span> <span class="toc-text">exercise6</span></a></li></ol></li></ol>
       </div>
     
 
