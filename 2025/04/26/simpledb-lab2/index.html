@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang=cn>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="EXERCISE 1 实现Filter、Join两个操作符  首先我们需要关注Predicate这个类，字面意思上理解，Predicate就是谓词，具体在lab中用来判断tuple的第field个field的val是否op这个operand 那么Predicate类我们可以很easy的实现，主要需要实现的是filter函数，这里调用field的compare方法即可 同理JoinPredicate">
+<meta property="og:type" content="article">
+<meta property="og:title" content="simpledb-lab2">
+<meta property="og:url" content="http://example.com/2025/04/26/simpledb-lab2/index.html">
+<meta property="og:site_name" content="羊小鱼的博客">
+<meta property="og:description" content="EXERCISE 1 实现Filter、Join两个操作符  首先我们需要关注Predicate这个类，字面意思上理解，Predicate就是谓词，具体在lab中用来判断tuple的第field个field的val是否op这个operand 那么Predicate类我们可以很easy的实现，主要需要实现的是filter函数，这里调用field的compare方法即可 同理JoinPredicate">
+<meta property="og:locale">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/aae6bdbbb65f1ae79090a80a22ac42c.png">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/1d26bf04ced3411a19c26ec18edc097.png">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/cda65c7c76d68022f6de7dd6cc63ba4.png">
+<meta property="og:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/e9cdbce67130d55127cf5df8d7469e3.png">
+<meta property="article:published_time" content="2025-04-26T12:58:05.000Z">
+<meta property="article:modified_time" content="2025-04-26T12:59:06.435Z">
+<meta property="article:author" content="羊小鱼">
+<meta property="article:tag" content="mit">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="lab">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/aae6bdbbb65f1ae79090a80a22ac42c.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>simpledb-lab2</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/26/redis-%E4%BA%8B%E4%BB%B6/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/simpledb-lab2/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/simpledb-lab2/&text=simpledb-lab2"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/simpledb-lab2/&is_video=false&description=simpledb-lab2"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=simpledb-lab2&body=Check out this article: http://example.com/2025/04/26/simpledb-lab2/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/simpledb-lab2/&name=simpledb-lab2&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/simpledb-lab2/&t=simpledb-lab2"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-1"><span class="toc-number">1.</span> <span class="toc-text">EXERCISE 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-2"><span class="toc-number">2.</span> <span class="toc-text">EXERCISE 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-3"><span class="toc-number">3.</span> <span class="toc-text">EXERCISE 3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-4"><span class="toc-number">4.</span> <span class="toc-text">EXERCISE 4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-5"><span class="toc-number">5.</span> <span class="toc-text">EXERCISE 5</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        simpledb-lab2
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">羊小鱼</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-26T12:58:05.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
+        
+        (Updated: <time datetime="2025-04-26T12:59:06.435Z" class="dt-updated" itemprop="dateModified">2025-04-26</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/simple-db/">simple-db</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/database/" rel="tag">database</a>, <a class="p-category" href="/tags/lab/" rel="tag">lab</a>, <a class="p-category" href="/tags/mit/" rel="tag">mit</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h3 id="EXERCISE-1"><a href="#EXERCISE-1" class="headerlink" title="EXERCISE 1"></a>EXERCISE 1</h3><blockquote>
+<p>实现Filter、Join两个操作符</p>
+</blockquote>
+<p>首先我们需要关注Predicate这个类，字面意思上理解，Predicate就是谓词，具体在lab中用来判断tuple的第field个field的val是否op这个operand</p>
+<p>那么Predicate类我们可以很easy的实现，主要需要实现的是filter函数，这里调用field的compare方法即可</p>
+<p>同理JoinPredicate类我们也可以很easy的实现，这里JoinPredicate与Predicate不同之处就是JoinPredicate是用于两个tuple之间而不是一个tuple一个operand。同样也是调用field的compare方法</p>
+<p>接下来我们需要实现Filter, 这是我们最终要实现的操作符，简单来说Filter起到一个where的作用，即过滤语句</p>
+<blockquote>
+<p>这里可以看看已经为我们实现好的GroupBy，这也是一个Operator，参考它的写法</p>
+</blockquote>
+<p>Filter内需要一个Predicate，谓词，同时还需要一个child的OpIterator，需要通过OpIterator来遍历tuple来执行谓词操作<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/aae6bdbbb65f1ae79090a80a22ac42c.png" alt="fetchNext"><br>核心函数实现，其他方法根据doc编写即可，这里需要注意的是open和close都需要调用super方法因为，父类有一个标志位需要开关</p>
+<p>Join同理，这里Join的方法考虑嵌套遍历，遍历第一张表然后遍历第二张表<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/1d26bf04ced3411a19c26ec18edc097.png" alt="fetchNext"></p>
+<blockquote>
+<p>这里可以考虑Join的优化</p>
+</blockquote>
+<h3 id="EXERCISE-2"><a href="#EXERCISE-2" class="headerlink" title="EXERCISE 2"></a>EXERCISE 2</h3><blockquote>
+<p>练习2要求实现的是聚合操作，包括sum，count等，因为String类型的简单只需要count，这里详细介绍int类型的</p>
+</blockquote>
+<p>我将操作抽象出了一个util，包含了operate和getTupleDesc<br>想要记录分组的结果，必然需要通过一个Hash容器，并且这里创建了一个空Field，目的是没有groupBy的col时有一个key<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/cda65c7c76d68022f6de7dd6cc63ba4.png" alt="avg"><br>这里介绍较为复杂的一个op实现，这里的value是int数组，一共有三个元素 0是值 1是总值 2是个数 通过维护这个数组可以得到结果，这里我debug了很久，刚开始只考虑了0，1维护平均值和个数，但是在除的过程中会有精度缺失导致存在偏差</p>
+<h3 id="EXERCISE-3"><a href="#EXERCISE-3" class="headerlink" title="EXERCISE 3"></a>EXERCISE 3</h3><blockquote>
+<p>练习3要求实现HeapPage、HeapFile、BufferPool的delete和insert tuple</p>
+</blockquote>
+<p>HeapPage中insert or delete Tuple直接进行操作即可，但是需要注意header和tuple数组的修改</p>
+<p>HeapFile delete一个tuple首先需要通过BufferPool getPage的方式，获取到对应的HeapPage，然后调用HeapPage的对应方法，<br>需要注意的是如果是insert时没有空的page了，需要新创建一个page然后插入<br><img src="https://yyhyy-blog.oss-cn-shanghai.aliyuncs.com/e9cdbce67130d55127cf5df8d7469e3.png" alt="insertTuple"><br>这里给出我的实现</p>
+<p>BufferPool 这里insert or delete tuple需要调用HeapFile的对应方法，并且对返回的page标记为脏页(意味着已经被修改过了)</p>
+<p>这里我们注意到BufferPool和HeapFile的关系好像还是如互相嵌套一般，因为BufferPool其实是server对下层执行引擎获取到的数据的全局访问点。HeapFile的所有操作都会把页刷到bufferPool中，再进行操作</p>
+<blockquote>
+<p>一些细节，当insert Tuple时要注意recordId的修改，因为这里的tuple可能是从别的表得到然后插入新表的(可以这么理解)，但是delete一定是对应的，否则找不到对应的page</p>
+</blockquote>
+<h3 id="EXERCISE-4"><a href="#EXERCISE-4" class="headerlink" title="EXERCISE 4"></a>EXERCISE 4</h3><blockquote>
+<p>练习4要求我们实现Delete和Insert这两个操作符</p>
+</blockquote>
+<p>练习3的操作是基于Page、File、BufferPool的，对于一个操作符而言(以delete为例)首先就需要OpIterator，通过iterator的遍历进行delete，这里的delete需要调用BufferPool的delete操作</p>
+<p>insert同理，比较简单</p>
+<h3 id="EXERCISE-5"><a href="#EXERCISE-5" class="headerlink" title="EXERCISE 5"></a>EXERCISE 5</h3><blockquote>
+<p>本实验要求实现BufferPool的页面置换算法，这里使用LRU算法秒杀了，比较简单</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-1"><span class="toc-number">1.</span> <span class="toc-text">EXERCISE 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-2"><span class="toc-number">2.</span> <span class="toc-text">EXERCISE 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-3"><span class="toc-number">3.</span> <span class="toc-text">EXERCISE 3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-4"><span class="toc-number">4.</span> <span class="toc-text">EXERCISE 4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXERCISE-5"><span class="toc-number">5.</span> <span class="toc-text">EXERCISE 5</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/simpledb-lab2/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/simpledb-lab2/&text=simpledb-lab2"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/simpledb-lab2/&is_video=false&description=simpledb-lab2"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=simpledb-lab2&body=Check out this article: http://example.com/2025/04/26/simpledb-lab2/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/simpledb-lab2/&title=simpledb-lab2"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/simpledb-lab2/&name=simpledb-lab2&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/simpledb-lab2/&t=simpledb-lab2"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    羊小鱼
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
