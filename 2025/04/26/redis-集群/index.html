@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="集群 Redis集群是Redis提供的分布式数据库方案，集群通过分片来进行数据共享，并提供复制和故障转移的功能  Redis集群是一种AP模型，它旨在提供高可用性和分区容错性, 集群内部是通过Gossip协议实现数据一致性的，存在以下几种通信信息  MEET 加入集群 PING 心跳检测 PONG 心跳回应 FAIL 主观下线  启动集群启动节点Redis服务器在启动时会根据cluster-ena">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis-集群">
+<meta property="og:url" content="http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="集群 Redis集群是Redis提供的分布式数据库方案，集群通过分片来进行数据共享，并提供复制和故障转移的功能  Redis集群是一种AP模型，它旨在提供高可用性和分区容错性, 集群内部是通过Gossip协议实现数据一致性的，存在以下几种通信信息  MEET 加入集群 PING 心跳检测 PONG 心跳回应 FAIL 主观下线  启动集群启动节点Redis服务器在启动时会根据cluster-ena">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-04-26T12:40:16.000Z">
+<meta property="article:modified_time" content="2025-04-26T12:40:45.171Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="集群">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>redis-集群</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/26/redis-sentinel/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&text=redis-集群"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&is_video=false&description=redis-集群"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis-集群&body=Check out this article: http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&name=redis-集群&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&t=redis-集群"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4"><span class="toc-number">1.</span> <span class="toc-text">集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4"><span class="toc-number">1.1.</span> <span class="toc-text">启动集群</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E8%8A%82%E7%82%B9"><span class="toc-number">1.1.1.</span> <span class="toc-text">启动节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MEET%E5%91%BD%E4%BB%A4%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.1.2.</span> <span class="toc-text">MEET命令实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A7%BD%E6%8C%87%E6%B4%BE"><span class="toc-number">1.2.</span> <span class="toc-text">槽指派</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E7%9A%84%E6%A7%BD%E6%8C%87%E6%B4%BE%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.1.</span> <span class="toc-text">节点的槽指派信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E7%9A%84%E6%A7%BD%E6%8C%87%E6%B4%BE%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.2.</span> <span class="toc-text">集群的槽指派信息</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E4%B8%AD%E5%91%BD%E4%BB%A4%E7%9A%84%E6%89%A7%E8%A1%8C"><span class="toc-number">1.3.</span> <span class="toc-text">集群中命令的执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E6%96%B0%E5%88%86%E7%89%87"><span class="toc-number">1.4.</span> <span class="toc-text">重新分片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ASK%E9%94%99%E8%AF%AF"><span class="toc-number">1.5.</span> <span class="toc-text">ASK错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%8D%E5%88%B6%E4%B8%8E%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="toc-number">1.6.</span> <span class="toc-text">复制与故障转移</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E6%A3%80%E6%B5%8B"><span class="toc-number">1.6.1.</span> <span class="toc-text">故障检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="toc-number">1.6.2.</span> <span class="toc-text">故障转移</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF"><span class="toc-number">1.7.</span> <span class="toc-text">消息</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E5%A4%B4"><span class="toc-number">1.7.1.</span> <span class="toc-text">消息头</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PING%E6%B6%88%E6%81%AF%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.7.2.</span> <span class="toc-text">PING消息实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FAIL%E6%B6%88%E6%81%AF%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.7.3.</span> <span class="toc-text">FAIL消息实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PUBLISH%E6%B6%88%E6%81%AF%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.7.4.</span> <span class="toc-text">PUBLISH消息的实现</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        redis-集群
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">John Doe</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-26T12:40:16.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/redis%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/">redis的设计与实现</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/redis/" rel="tag">redis</a>, <a class="p-category" href="/tags/%E9%9B%86%E7%BE%A4/" rel="tag">集群</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><blockquote>
+<p>Redis集群是Redis提供的分布式数据库方案，集群通过分片来进行数据共享，并提供复制和故障转移的功能</p>
+</blockquote>
+<p>Redis集群是一种AP模型，它旨在提供高可用性和分区容错性, 集群内部是通过Gossip协议实现数据一致性的，存在以下几种通信信息</p>
+<ul>
+<li>MEET 加入集群</li>
+<li>PING 心跳检测</li>
+<li>PONG 心跳回应</li>
+<li>FAIL 主观下线</li>
+</ul>
+<h3 id="启动集群"><a href="#启动集群" class="headerlink" title="启动集群"></a>启动集群</h3><h4 id="启动节点"><a href="#启动节点" class="headerlink" title="启动节点"></a>启动节点</h4><p>Redis服务器在启动时会根据cluster-enabled配置选项确定是否开启集群模式，集群模式主要多了cluseterNode等结构保存集群信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">struct clusterNode &#123;</span><br><span class="line">    // 创建节点实践</span><br><span class="line">    mstime_t ctime;</span><br><span class="line">    // 节点名字</span><br><span class="line">    char name[REDIS_CLUSTER_NAMELEN];</span><br><span class="line">    ...</span><br><span class="line">    // 保存连接节点的一些信息</span><br><span class="line">    clusterLink *link;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">typedef struct clusterLink &#123;</span><br><span class="line"></span><br><span class="line">    // 连接创建实践</span><br><span class="line">    mstime_t ctime;</span><br><span class="line">    // TCP 套接字描述符</span><br><span class="line">    int fd;</span><br><span class="line">    // 输出缓冲区，保存着等待发送给其他节点的信息</span><br><span class="line">    sds sndbuf;</span><br><span class="line">    // 输入缓冲区，保存着从其他节点接收到的信息</span><br><span class="line">    sds rcvbuf;</span><br><span class="line">    // 与这个连接相关的节点</span><br><span class="line">    clusterNode *node;</span><br><span class="line">&#125; clusterLink;</span><br><span class="line"></span><br><span class="line">// 集群状态</span><br><span class="line">typedef struct clusterState &#123;</span><br><span class="line">    clusterNode *myself;</span><br><span class="line">    ...</span><br><span class="line">    // 集群节点名单</span><br><span class="line">    dict *nodes;</span><br><span class="line">&#125; clusterState;</span><br></pre></td></tr></table></figure>
+
+<h4 id="MEET命令实现"><a href="#MEET命令实现" class="headerlink" title="MEET命令实现"></a>MEET命令实现</h4><p>Example.<br>向节点A发送MEET ip port 节点B的信息，此时节点A将与节点B发生握手，来确认彼此的存在</p>
+<ul>
+<li>节点A会为节点B创建一个ClusterNode，并添加到ClusterState字典中</li>
+<li>节点A为节点B发送一条MEET消息，表示接收到MEET命令</li>
+<li>节点B同样为节点A创建一个ClusterNode，并添加到ClusterState中</li>
+<li>节点B返回一条PONG消息，节点A接收到后返回PING消息，此时握手结束</li>
+</ul>
+<p>此后通过GOSSIP协议，节点会逐步知道集群的信息，集群信息达成最终一致性</p>
+<h3 id="槽指派"><a href="#槽指派" class="headerlink" title="槽指派"></a>槽指派</h3><h4 id="节点的槽指派信息"><a href="#节点的槽指派信息" class="headerlink" title="节点的槽指派信息"></a>节点的槽指派信息</h4><p>在上文提到的clusterNode中，会存有一个数组记录节点的槽指派信息<br><strong>unsigned char slots[16384 &#x2F; 8]</strong>, 该数组是比特数组，对于第i个槽位是否由本节点计算可以通过以下公式:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slots[i / 8] &gt;&gt; (i % 8) &amp; 1 == 1?</span><br></pre></td></tr></table></figure>
+
+<h4 id="集群的槽指派信息"><a href="#集群的槽指派信息" class="headerlink" title="集群的槽指派信息"></a>集群的槽指派信息</h4><p>在上文提到的clusterstate结构体中存有一个字段<br><strong>clusterNode slots[16834]</strong><br>这个用于记录每个槽指派的节点，这个与单节点clusterNode结构体中的slots数组相辅相成，一个用于单节点明确是否负责槽，一个用于明确集群中槽的分配情况</p>
+<p>这些槽位信息是通过前文提到的GOSSIP协议进行传播的，保持集群中信息的一致性</p>
+<blockquote>
+<p>只有当集群中16384个槽都被指派了节点后集群才能进入上线状态</p>
+</blockquote>
+<p>cluster addslots 命令用于槽指派，比如cluster addslots 1 2 就是把槽1，2都指派给对应的节点</p>
+<h3 id="集群中命令的执行"><a href="#集群中命令的执行" class="headerlink" title="集群中命令的执行"></a>集群中命令的执行</h3><p>我们知道集群中数据已经被切片成16384个槽，因此对一个服务端进行get操作时(举个例子)，不一定在该节点上，具体来说需要经过以下几个步骤：</p>
+<ul>
+<li>计算键属于哪个槽这里采用crc16算法</li>
+<li>判断槽是否由自己负责，如果不是则通过clusterState中的slot数组找到对应的节点</li>
+<li>返回 MOVED信息</li>
+<li>客户端接收到MOVED信息后重定向发起命令</li>
+</ul>
+<p>节点还会保存槽与键的关系，通过skipList，因为存在命令cluster getkeysinslot slot count 返回最多count个属于slot的数据库键</p>
+<h3 id="重新分片"><a href="#重新分片" class="headerlink" title="重新分片"></a>重新分片</h3><blockquote>
+<p>重新分片是利用redis-trib实现的</p>
+</blockquote>
+<p>这里不强调重新分配的指令，而是梳理重新分配的流程</p>
+<ol>
+<li>开始对槽slot重新分片</li>
+<li>目标节点准备导入槽slot的键值对</li>
+<li>源节点准备迁移槽slot的键值对</li>
+<li>源节点如果保存了槽slot的键，则逐步开始迁移，如果没有则直接把槽指派给目标节点</li>
+<li>完成对槽slot的重新分片</li>
+</ol>
+<p>那这里会存在一个问题，当槽迁移时，客户端发来命令怎么办？继续往下看</p>
+<h3 id="ASK错误"><a href="#ASK错误" class="headerlink" title="ASK错误"></a>ASK错误</h3><p>ASK错误指的就是当槽发生迁移，但是请求达到了节点上，此时就会返回ask错误。这也是gossip协议产生的最终一致性问题，在迁移过程时，槽的分配情况在集群中还未能更新至一致。简单的例子，比如“cat”和“dog”都是要迁移的槽位的键，而“cat”已经完成了迁移，但是“dog”还没有，此时get cat已经打到了该节点上，那么就会返回ask 指向正确的节点</p>
+<p>其实 clusterState中维护了两个数组 importing_slots_from 代表的是从某个节点迁出 migrating_slots_to 代表的是迁入某个节点</p>
+<p>但一般而言，如果客户端向节点发送一个关于槽i的命令，如果节点本身发现没有槽i没有被指派给自己，则会返回错误，而这里需要通过上文提到的importing_slots_from和ASKING命令实现</p>
+<p>当返回ASK错误时，客户端会先向redirect的节点发送ASKING，类似激活开关位，下次访问时如果槽i没有被指派给自己但是，在importing_slots_from这个数组中，并且上述的开关位被激活，则会执行该命令</p>
+<h3 id="复制与故障转移"><a href="#复制与故障转移" class="headerlink" title="复制与故障转移"></a>复制与故障转移</h3><p>Redis集群中的节点分为主节点和从节点，可以划分主从节点形成主从架构，其中主节点用于处理槽，而从节点用于复制某个主节点。</p>
+<p>当一个节点成为其他节点的从节点时，<br>在clusterState中myself即指向自身的clusterNode指针中的slaveof指针指向主节点的clusterNode，同时集群中的其他节点维护主节点clusterNode中slaves属性和numslaves属性</p>
+<h4 id="故障检测"><a href="#故障检测" class="headerlink" title="故障检测"></a>故障检测</h4><p>我们提到Redis集群是以gossip协议的形式进行消息的传播的，集群中的每个节点都会定期地向集群中的其他节点发送PING(心跳检测), 接收到PING的节点需要定期返回PONG消息，否则则会标记位疑似下线。</p>
+<p>集群中的各个节点会通过互相发消息的方式来交换集群中各个节点的状态信息，例如某个节点是疑似下线，还是已下线</p>
+<p>当主节点A通过消息得知主节点B认为主节点C进入了疑似下线状态时，主节点A会在自己的clusterState.nodes字典中找到C对应的clusterNode添加下线报告，具体的结构为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct clusterNodeFailReport &#123;</span><br><span class="line">    struct clusterNode *node;</span><br><span class="line">    mstime_t time;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果在一个集群里面，半数以上负责处理槽的主节点都将某个主节点报告为疑似下线，那么这个主节点x将被标记为已下线，将主节点x标记为已下线的节点会向集群广播一条关于主节点x的FAIL消息，所有收到这条FAIL消息的都会把这个节点标记为已下线</p>
+<h4 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h4><p>这里的故障转移和sentinel下的故障转移类似，这里重新梳理一遍</p>
+<ol>
+<li>集群维护一个变量配置纪元，即termId</li>
+<li>当发生一次故障转移时，termId++</li>
+<li>对于每个配置纪元，每个主节点都有一次投票的机会，这里投票的原则是先到先得</li>
+<li>当从节点发送主节点已下线，向集群广播，要求投票的消息</li>
+<li>主节点拥有投票权，以先到先得的方式投票</li>
+<li>从节点如果收到了半数以上的票数则变为主节点</li>
+<li>若平票，则再次选举</li>
+</ol>
+<p>选举出的新主节点会执行以下流程：</p>
+<ol>
+<li>执行slave of no one 变为主节点</li>
+<li>撤销已下线主节点对槽的指派，并由自己负责</li>
+<li>发送PONG命令，传递信息，让集群知道已经发生了故障转移</li>
+<li>新主节点接收并处理客户端命令</li>
+</ol>
+<h3 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h3><p>我们之前一直提到redis集群是通过gossip协议实现一致性的，具体来说存在五种Gossip消息：</p>
+<ul>
+<li>MEET消息：用于加入节点</li>
+<li>PING消息： 集群中的每个节点默认每个一秒钟就会从已知接待你列表中随机选出五个节点，然后对这五个节点中最长没有发送过ping消息的节点发送ping消息，以此检测被选中节点是否在线，除此之外，如果节点A最后一次收到节点B发送PONG消息的时间超过设置的一半，也会发送PING，防止消息更新滞后</li>
+<li>PONG消息：回应PING或MEET消息，或者广播PONG消息立即刷新关于这个节点的认识，比如故障转移操作成功执行后</li>
+<li>FAIL消息：传播节点下线消息</li>
+<li>PUBLISH: 当一个节点收到PUBLISH消息时，节点会执行该命令，并广播(因为不同客户端可能在不同节点订阅了相同的频道)</li>
+</ul>
+<h4 id="消息头"><a href="#消息头" class="headerlink" title="消息头"></a>消息头</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">    // 消息的长度</span><br><span class="line">    uint32_t tolen;</span><br><span class="line"></span><br><span class="line">    // 消息的类型</span><br><span class="line">    uint16_t type;</span><br><span class="line"></span><br><span class="line">    // 消息正文包含的节点数，只有部分消息使用</span><br><span class="line">    uint16_t count;</span><br><span class="line"></span><br><span class="line">    // 发送者所处的配置纪元</span><br><span class="line">    uint64_t configEpoch;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    // 集群状态</span><br><span class="line">    unsigned char state;</span><br><span class="line"></span><br><span class="line">    // 消息的正文</span><br><span class="line">    union chlusterMsgData data;</span><br><span class="line">&#125; clusterMsg;</span><br><span class="line"></span><br><span class="line">union clusterMsgData &#123;</span><br><span class="line">    struct &#123;</span><br><span class="line">        clusterMsgDataGossip gossip[1];</span><br><span class="line">    &#125; ping;</span><br><span class="line"></span><br><span class="line">    struct &#123;</span><br><span class="line">        clusterMsgDataFail about;</span><br><span class="line">    &#125; fail;</span><br><span class="line"></span><br><span class="line">    struct &#123;</span><br><span class="line">        clusterMsgDataPublish msg;</span><br><span class="line">    &#125; publish;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="PING消息实现"><a href="#PING消息实现" class="headerlink" title="PING消息实现"></a>PING消息实现</h4><p>当每次发送PING消息时，发送者都从自己的已知节点列表中随机选出两个节点，并发送这两个节点的信息。</p>
+<ul>
+<li>如果被选中节点不存在与接收者的已知节点中，两者之间进行握手</li>
+<li>如果选中节点存在于，则进行更新</li>
+</ul>
+<p>MEET、PONG消息同理</p>
+<h4 id="FAIL消息实现"><a href="#FAIL消息实现" class="headerlink" title="FAIL消息实现"></a>FAIL消息实现</h4><p>FAIL消息中就记录了下线的节点名，其他节点接收到了该消息后把节点标记为下线</p>
+<h4 id="PUBLISH消息的实现"><a href="#PUBLISH消息的实现" class="headerlink" title="PUBLISH消息的实现"></a>PUBLISH消息的实现</h4><p>PUBLISH channel messsage 当一个节点收到这个消息时会集群广播消息，具体原因在上文解释过了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">    uint32_t channel_len;</span><br><span class="line">    uint32_t message_len;</span><br><span class="line">    // 前两个字段记录长度，即记录在bulk_data的消息位置</span><br><span class="line">    unsigned char bulk_data[8];</span><br><span class="line">&#125; clusterMsgDataPublish;</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4"><span class="toc-number">1.</span> <span class="toc-text">集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4"><span class="toc-number">1.1.</span> <span class="toc-text">启动集群</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E8%8A%82%E7%82%B9"><span class="toc-number">1.1.1.</span> <span class="toc-text">启动节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MEET%E5%91%BD%E4%BB%A4%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.1.2.</span> <span class="toc-text">MEET命令实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A7%BD%E6%8C%87%E6%B4%BE"><span class="toc-number">1.2.</span> <span class="toc-text">槽指派</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E7%9A%84%E6%A7%BD%E6%8C%87%E6%B4%BE%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.1.</span> <span class="toc-text">节点的槽指派信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E7%9A%84%E6%A7%BD%E6%8C%87%E6%B4%BE%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.2.</span> <span class="toc-text">集群的槽指派信息</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E4%B8%AD%E5%91%BD%E4%BB%A4%E7%9A%84%E6%89%A7%E8%A1%8C"><span class="toc-number">1.3.</span> <span class="toc-text">集群中命令的执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E6%96%B0%E5%88%86%E7%89%87"><span class="toc-number">1.4.</span> <span class="toc-text">重新分片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ASK%E9%94%99%E8%AF%AF"><span class="toc-number">1.5.</span> <span class="toc-text">ASK错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%8D%E5%88%B6%E4%B8%8E%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="toc-number">1.6.</span> <span class="toc-text">复制与故障转移</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E6%A3%80%E6%B5%8B"><span class="toc-number">1.6.1.</span> <span class="toc-text">故障检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="toc-number">1.6.2.</span> <span class="toc-text">故障转移</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF"><span class="toc-number">1.7.</span> <span class="toc-text">消息</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E5%A4%B4"><span class="toc-number">1.7.1.</span> <span class="toc-text">消息头</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PING%E6%B6%88%E6%81%AF%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.7.2.</span> <span class="toc-text">PING消息实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FAIL%E6%B6%88%E6%81%AF%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.7.3.</span> <span class="toc-text">FAIL消息实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PUBLISH%E6%B6%88%E6%81%AF%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.7.4.</span> <span class="toc-text">PUBLISH消息的实现</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&text=redis-集群"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&is_video=false&description=redis-集群"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis-集群&body=Check out this article: http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&title=redis-集群"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&name=redis-集群&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/redis-%E9%9B%86%E7%BE%A4/&t=redis-集群"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
