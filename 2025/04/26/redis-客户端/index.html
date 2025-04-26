@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="客户端 Redis服务器是典型的一对多服务器程序  对于每个与服务器进行连接的客户端，服务器都为这些客户端建立了相应的redisClient结构，这个结构体中包含了：  客户端的套接字描述符 客户端的名字 客户端的标志位 客户端使用数据库的指针，以及该数据库的号码 客户端正在要执行的命令、命令参数、命令参数的格式，以及指向命令实现函数的指针 客户端的输入缓冲区和输出缓冲区 客户端的复制状态信息，以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis-客户端">
+<meta property="og:url" content="http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="客户端 Redis服务器是典型的一对多服务器程序  对于每个与服务器进行连接的客户端，服务器都为这些客户端建立了相应的redisClient结构，这个结构体中包含了：  客户端的套接字描述符 客户端的名字 客户端的标志位 客户端使用数据库的指针，以及该数据库的号码 客户端正在要执行的命令、命令参数、命令参数的格式，以及指向命令实现函数的指针 客户端的输入缓冲区和输出缓冲区 客户端的复制状态信息，以">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-04-26T12:41:47.000Z">
+<meta property="article:modified_time" content="2025-04-26T12:42:10.579Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="客户端">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>redis-客户端</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/26/redis-%E9%9B%86%E7%BE%A4/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&text=redis-客户端"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&is_video=false&description=redis-客户端"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis-客户端&body=Check out this article: http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&name=redis-客户端&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&t=redis-客户端"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.1.</span> <span class="toc-text">伪客户端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%87%E5%BF%97"><span class="toc-number">1.2.</span> <span class="toc-text">客户端标志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4"><span class="toc-number">1.3.</span> <span class="toc-text">命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">1.4.</span> <span class="toc-text">身份验证</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        redis-客户端
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">John Doe</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-26T12:41:47.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/redis%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/">redis的设计与实现</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/redis/" rel="tag">redis</a>, <a class="p-category" href="/tags/%E5%AE%A2%E6%88%B7%E7%AB%AF/" rel="tag">客户端</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><blockquote>
+<p>Redis服务器是典型的一对多服务器程序</p>
+</blockquote>
+<p>对于每个与服务器进行连接的客户端，服务器都为这些客户端建立了相应的redisClient结构，这个结构体中包含了：</p>
+<ul>
+<li>客户端的套接字描述符</li>
+<li>客户端的名字</li>
+<li>客户端的标志位</li>
+<li>客户端使用数据库的指针，以及该数据库的号码</li>
+<li>客户端正在要执行的命令、命令参数、命令参数的格式，以及指向命令实现函数的指针</li>
+<li>客户端的输入缓冲区和输出缓冲区</li>
+<li>客户端的复制状态信息，以及进行复制所需的数据结构</li>
+<li>客户端执行BRPOP、BLPOP等列表阻塞命令时使用的数据结构</li>
+<li>客户端的事务状态，以及执行WATCH命令时用到的数据机构</li>
+<li>客户端的身份验证标识</li>
+</ul>
+<p>Redis的服务器状态中的clients记录了所有与当前服务器相连的客户端</p>
+<h3 id="伪客户端"><a href="#伪客户端" class="headerlink" title="伪客户端"></a>伪客户端</h3><p>伪客户端处理的命令是来自AOF或LUA脚本</p>
+<h3 id="客户端标志"><a href="#客户端标志" class="headerlink" title="客户端标志"></a>客户端标志</h3><ol>
+<li>REDIS_MASTER 标志表示的是客户端代表的一个主服务器，REDIS_SLAVE标志标识客户端代表的是一个从服务器</li>
+<li>REDIS_LUA_CLIENT代表的是客户端是专门用于处理LUA脚本里面包含的Redis命令的伪客户端</li>
+<li>REDIS_MULTI 标志表示的是客户端正在执行事务</li>
+<li>REDIS_FORCE_AOF 强制服务器将当前执行的命令写入到AOF文件</li>
+<li>REDIS_FORCE_REPL 强制主服务器将当前执行的命令复制给所有从服务器</li>
+</ol>
+<h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><p>客户端发送的命令请求保存到客户端状态的queryBuf属性，服务器对命令请求的内容进行解析，并将得出的命令参数以及命令参数的个数分别保存到客户端状态的argv和argc属性，argv属性是一个数组，保存了命令，比如“set”、“val”、“10”。</p>
+<p>内部维护了一个redisCommand，即指向命令表中命令执行函数的地址</p>
+<p>输出缓冲区：分为两个缓冲区</p>
+<ol>
+<li>固定大小的缓冲区用来保存哪些长度比较小的回复</li>
+<li>可变大小的缓冲区用来保存长度比较大的回复，比如元素很多的列表</li>
+</ol>
+<h3 id="身份验证"><a href="#身份验证" class="headerlink" title="身份验证"></a>身份验证</h3><p>存有一个authenticated属性用于记录客户端通过了身份验证</p>
+<p>如果authenticated的值为0，表示客户端未通过身份验证<br>如果authenticated的值为1，表示客户端通过了身份验证</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.</span> <span class="toc-text">客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.1.</span> <span class="toc-text">伪客户端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%87%E5%BF%97"><span class="toc-number">1.2.</span> <span class="toc-text">客户端标志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4"><span class="toc-number">1.3.</span> <span class="toc-text">命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">1.4.</span> <span class="toc-text">身份验证</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&text=redis-客户端"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&is_video=false&description=redis-客户端"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis-客户端&body=Check out this article: http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&title=redis-客户端"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&name=redis-客户端&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/redis-%E5%AE%A2%E6%88%B7%E7%AB%AF/&t=redis-客户端"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
