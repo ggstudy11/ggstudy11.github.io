@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang=cn>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="内存管理虚拟内存单片机的CPU是直接操作物理内存的，因此想要同时运行两个程序是做不到的，因为如果第一个程序在地址x的位置写入数据，第二个程序同样需要用到地址x，则会发生冲突。 因此我们需要用到虚拟地址来分割不同进程之间的内存地址，即给每个进程分配一个虚拟地址，虚拟地址与物理地址之间的映射关系对于进程而言是透明的，进程只需要直接对虚拟地址操作即可。操作系统提供了一种机制，将虚拟地址和物理地址联系起来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存管理">
+<meta property="og:url" content="http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="羊小鱼的博客">
+<meta property="og:description" content="内存管理虚拟内存单片机的CPU是直接操作物理内存的，因此想要同时运行两个程序是做不到的，因为如果第一个程序在地址x的位置写入数据，第二个程序同样需要用到地址x，则会发生冲突。 因此我们需要用到虚拟地址来分割不同进程之间的内存地址，即给每个进程分配一个虚拟地址，虚拟地址与物理地址之间的映射关系对于进程而言是透明的，进程只需要直接对虚拟地址操作即可。操作系统提供了一种机制，将虚拟地址和物理地址联系起来">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-04-26T13:05:17.000Z">
+<meta property="article:modified_time" content="2025-04-26T13:05:57.405Z">
+<meta property="article:author" content="羊小鱼">
+<meta property="article:tag" content="内存管理">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>内存管理</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/26/what-is-rag/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&text=内存管理"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&is_video=false&description=内存管理"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内存管理&body=Check out this article: http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&name=内存管理&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&t=内存管理"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">内存管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-number">1.1.</span> <span class="toc-text">虚拟内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E6%AE%B5"><span class="toc-number">1.2.</span> <span class="toc-text">内存分段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%A1%B5"><span class="toc-number">1.3.</span> <span class="toc-text">内存分页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8"><span class="toc-number">1.4.</span> <span class="toc-text">多级页表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLB"><span class="toc-number">1.5.</span> <span class="toc-text">TLB</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        内存管理
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">羊小鱼</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-26T13:05:17.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
+        
+        (Updated: <time datetime="2025-04-26T13:05:57.405Z" class="dt-updated" itemprop="dateModified">2025-04-26</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/os/">os</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag">内存管理</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><h3 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h3><p>单片机的CPU是直接操作物理内存的，因此想要同时运行两个程序是做不到的，因为如果第一个程序在地址x的位置写入数据，第二个程序同样需要用到地址x，则会发生冲突。</p>
+<p>因此我们需要用到虚拟地址来分割不同进程之间的内存地址，即给每个进程分配一个虚拟地址，虚拟地址与物理地址之间的映射关系对于进程而言是透明的，进程只需要直接对虚拟地址操作即可。<br>操作系统提供了一种机制，将虚拟地址和物理地址联系起来。</p>
+<blockquote>
+<p>虚拟地址：程序使用的内存地址<br>物理地址：硬件实际的内存空间</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>我们上文提到了操作系统将虚拟地址和物理地址映射的机制，接下来我们将介绍这种机制</p>
+</blockquote>
+<h3 id="内存分段"><a href="#内存分段" class="headerlink" title="内存分段"></a>内存分段</h3><p>程序是由多个逻辑段构成：</p>
+<ul>
+<li>代码段</li>
+<li>数据段</li>
+<li>堆段</li>
+<li>栈段<br>因此我们可以通过内存分段的形式进行虚拟地址与物理地址的映射</li>
+</ul>
+<p>在内存分段的情况下<br>虚拟地址 &#x3D; 段选择因子 + 段偏移量<br>段偏移量我们很好理解就是内存段中的offset，当我们访问一块内存区域时，需要知道该内存在段中的哪个部分<br>段选择因子中包括了段号，通过段号我们可以在段表上找到对应的段描述符，段描述符中包括了段基址和段界限还有特权级<br>段界限用来判断访问的段地址是否合法，如果地址合法那么访问的地址就是段基址 + 段偏移量</p>
+<p><strong>缺陷</strong></p>
+<ol>
+<li>内存碎片问题<br>在分段的情况下，容易产生内存外碎片，导致大内存程序即使在剩余内存空间够的情况下，但是由于内存分散导致无法载入，因此继而产生了接下来的内存交换问题</li>
+<li>内存交换问题<br>解决内存碎片问题的一个方式就是内存交换，但内存碎片多的时候将已载入内存的部分放入硬盘重新载入（swap），使得与其他段紧挨着，减少碎片，以此解决内存碎片问题，但是频繁的内存交换导致性能瓶颈。</li>
+</ol>
+<h3 id="内存分页"><a href="#内存分页" class="headerlink" title="内存分页"></a>内存分页</h3><p>内存分页就是在上述情况下出现<br>内存分页就是将虚拟内存和物理内存划分成大小一致的页，在Linux中为4KB</p>
+<p>虚拟地址和物理地址通过页表进行地址映射。内存管理单元MMU负责将虚拟地址转化为物理地址。当进程访问的虚拟地址在页表上查询不到时会产生一个缺页中断，然后进入系统内核空间分配物理内存，更新进程页表，最后返回用户空间。<br>虚拟地址分为页号 + 偏移量两个部分，页表中存储了虚拟页号和物理页号的映射关系，找到对应的物理页号后根据偏移量找到实际的地址</p>
+<p><strong>分页是如何解决内存碎片问题?</strong><br>因为分页将内存划分成大小相同的页，因此程序只需要取数量的页即可，但是这里存在内存内碎片问题，因为页的大小是相同的，因此页内存在碎片问题</p>
+<h3 id="多级页表"><a href="#多级页表" class="headerlink" title="多级页表"></a>多级页表</h3><p>多级页表是为了解决简单分页下出现的内存占用问题<br><strong>简单分页</strong><br>在简单分页下，我们知道在32位系统下，虚拟内存有4G，一个页的大小是4KB，因此分成2的20次方个页，每个页表项需要4B大小存储，因此这里总共是4MB，对于每个进程而言都有一个页表，因此产生的开销是巨大的，在这种情况下我们考虑采用多级页表的形式</p>
+<p>事实上，我们考虑一下复杂分页并不能减少内存的时候，比如对于2的20次方个页，我们分成二级页表而言需要4KB(1024)大小的一级页表，以及4MB(1024 * 1024)大小的二级页表，这样一想并没有减少内存的使用呀？但实际上这里涉及了<strong>懒惰分配</strong>的原则，由于程序具有局部性原理，对于没有用到的地址我们展示不分配二级页表因此减少了内存的使用</p>
+<blockquote>
+<p>对于64位系统而言页表一般是四级：</p>
+<ul>
+<li>全局页</li>
+<li>上层页</li>
+<li>中间页</li>
+<li>页表项</li>
+</ul>
+</blockquote>
+<h3 id="TLB"><a href="#TLB" class="headerlink" title="TLB"></a>TLB</h3><p>但是由于页表结构变得复杂，那么虚拟地址的转化也会变得复杂，因此出现了TLB，即一种缓存结构，放置了最常访问的页表项和对应的物理页，CPU在寻址时首先会查询TLB，然后进行地址转换<br>通常情况下TLB的命中率比较高，因为程序具有局部性原理</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">内存管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-number">1.1.</span> <span class="toc-text">虚拟内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E6%AE%B5"><span class="toc-number">1.2.</span> <span class="toc-text">内存分段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%A1%B5"><span class="toc-number">1.3.</span> <span class="toc-text">内存分页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8"><span class="toc-number">1.4.</span> <span class="toc-text">多级页表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLB"><span class="toc-number">1.5.</span> <span class="toc-text">TLB</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&text=内存管理"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&is_video=false&description=内存管理"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内存管理&body=Check out this article: http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=内存管理"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&name=内存管理&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&t=内存管理"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    羊小鱼
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
