@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="哨兵 Sentinel 是 Redis高可用性的保障：由一个或多个Sentinel实例组成的Sentinel系统可以监视任意多个主服务器以及这些主服务器属下的所有从服务器，并在被监视的主服务器属下的所有从服务器，并在被监视的主服务器进入下线状态时，自动将下线主服务器进入下线状态时，自动将下线主服务器属下的某个从服务器升级为新的主服务器，然后由新的主服务器代替已下线的主服务器继续处理命令请求。  启">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis-sentinel">
+<meta property="og:url" content="http://example.com/2025/04/26/Redis-sentinel/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="哨兵 Sentinel 是 Redis高可用性的保障：由一个或多个Sentinel实例组成的Sentinel系统可以监视任意多个主服务器以及这些主服务器属下的所有从服务器，并在被监视的主服务器属下的所有从服务器，并在被监视的主服务器进入下线状态时，自动将下线主服务器进入下线状态时，自动将下线主服务器属下的某个从服务器升级为新的主服务器，然后由新的主服务器代替已下线的主服务器继续处理命令请求。  启">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-04-26T12:37:15.000Z">
+<meta property="article:modified_time" content="2025-04-26T12:37:57.420Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="sentinel">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Redis-sentinel</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/26/SIMPLEDB-LAB1/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/Redis-sentinel/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/Redis-sentinel/&text=Redis-sentinel"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/Redis-sentinel/&is_video=false&description=Redis-sentinel"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Redis-sentinel&body=Check out this article: http://example.com/2025/04/26/Redis-sentinel/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/Redis-sentinel/&name=Redis-sentinel&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/Redis-sentinel/&t=Redis-sentinel"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%A8%E5%85%B5"><span class="toc-number">1.</span> <span class="toc-text">哨兵</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E5%B9%B6%E5%88%9D%E5%A7%8B%E5%8C%96Sentinel"><span class="toc-number">1.1.</span> <span class="toc-text">启动并初始化Sentinel</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.1.1.</span> <span class="toc-text">初始化服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%BF%E6%8D%A2Sentinel%E7%9A%84%E4%B8%93%E7%94%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">1.1.2.</span> <span class="toc-text">替换Sentinel的专用代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Sentinel%E7%8A%B6%E6%80%81"><span class="toc-number">1.1.3.</span> <span class="toc-text">初始化Sentinel状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Sentinel%E7%8A%B6%E6%80%81%E7%9A%84masters%E5%B1%9E%E6%80%A7"><span class="toc-number">1.1.4.</span> <span class="toc-text">初始化Sentinel状态的masters属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%BF%9E%E5%90%91%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.1.5.</span> <span class="toc-text">创建连向主服务器的网络连接</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.</span> <span class="toc-text">获取主服务器信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.</span> <span class="toc-text">获取从服务器信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%91%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%92%8C%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8F%91%E9%80%81%E4%BF%A1%E6%81%AF"><span class="toc-number">1.4.</span> <span class="toc-text">向主服务器和从服务器发送信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A5%E6%94%B6%E6%9D%A5%E8%87%AA%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%92%8C%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E9%A2%91%E9%81%93%E4%BF%A1%E6%81%AF"><span class="toc-number">1.5.</span> <span class="toc-text">接收来自主服务器和从服务器的频道信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E7%BA%BF%E6%A3%80%E6%B5%8B"><span class="toc-number">1.6.</span> <span class="toc-text">下线检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="toc-number">1.7.</span> <span class="toc-text">故障转移</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Redis-sentinel
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">John Doe</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-26T12:37:15.000Z" class="dt-published" itemprop="datePublished">2025-04-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/redis%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/">redis的设计与实现</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/redis/" rel="tag">redis</a>, <a class="p-category" href="/tags/sentinel/" rel="tag">sentinel</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="哨兵"><a href="#哨兵" class="headerlink" title="哨兵"></a>哨兵</h2><blockquote>
+<p>Sentinel 是 Redis高可用性的保障：由一个或多个Sentinel实例组成的Sentinel系统可以监视任意多个主服务器以及这些主服务器属下的所有从服务器，并在被监视的主服务器属下的所有从服务器，并在被监视的主服务器进入下线状态时，自动将下线主服务器进入下线状态时，自动将下线主服务器属下的某个从服务器升级为新的主服务器，然后由新的主服务器代替已下线的主服务器继续处理命令请求。</p>
+</blockquote>
+<h3 id="启动并初始化Sentinel"><a href="#启动并初始化Sentinel" class="headerlink" title="启动并初始化Sentinel"></a>启动并初始化Sentinel</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-sentinel /path/to/your/sentinel.conf</span><br></pre></td></tr></table></figure>
+
+<p>当一个Sentinel启动时，它需要执行以下步骤：</p>
+<ol>
+<li>初始化服务器</li>
+<li>将普通Redis服务器使用的代码替换成Sentinel专用代码</li>
+<li>初始化Sentinel状态</li>
+<li>根据给定的配置文件，初始化Sentinel的监视主服务器列表(从服务器后文会提到)</li>
+<li>创建连向主服务器的网络连接</li>
+</ol>
+<h4 id="初始化服务器"><a href="#初始化服务器" class="headerlink" title="初始化服务器"></a>初始化服务器</h4><blockquote>
+<p>sentinel本质上是一个Redis服务器</p>
+</blockquote>
+<p>但是Sentinel执行的工作和普通的Redis节点而言不太一样，因此在初始化时不会像普通的服务器载入RDB文件或AOF文件来还原数据库状态。</p>
+<h4 id="替换Sentinel的专用代码"><a href="#替换Sentinel的专用代码" class="headerlink" title="替换Sentinel的专用代码"></a>替换Sentinel的专用代码</h4><p>Sentinel的会将普通Redis服务器使用的代码进行专用代码替换，Sentinel会采用专门的Sentinelcmds作为服务器的命令表，因此在Sentinel模式下，一些SET等命令无法使用</p>
+<h4 id="初始化Sentinel状态"><a href="#初始化Sentinel状态" class="headerlink" title="初始化Sentinel状态"></a>初始化Sentinel状态</h4><p>服务器的一般状态由redisServer结构保存，Sentinel服务器由sentinelState结构保存</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">struct sentinelState &#123;</span><br><span class="line">    /*</span><br><span class="line">      核心字段，保存了所有被这个sentinel监视的主服务器</span><br><span class="line">      字典的键时主服务器的名字</span><br><span class="line">      字典的值则是一个指向sentinelRedisInstance结构的指针</span><br><span class="line">    */</span><br><span class="line">    dict *masters;</span><br><span class="line"></span><br><span class="line">    int tilt;</span><br><span class="line">    mstime_t tilt_start_time;</span><br><span class="line">    list *scripts_queue</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="初始化Sentinel状态的masters属性"><a href="#初始化Sentinel状态的masters属性" class="headerlink" title="初始化Sentinel状态的masters属性"></a>初始化Sentinel状态的masters属性</h4><p>在上文，我们提到了一个dict结构，保存了主服务器名和对应的主服务器信息，这里介绍以下sentinel中主服务器的info结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">typedef struct sentinelRedisInstance &#123;</span><br><span class="line">    // 标识位</span><br><span class="line">    int flag;</span><br><span class="line"></span><br><span class="line">    // 实例的名字</span><br><span class="line">    // 主服务器的名字由用户在配置文件中设置</span><br><span class="line">    // 从服务器以及Sentinel的名字由Sentinel自动设置 ip:port</span><br><span class="line">    char *name;</span><br><span class="line">    ...</span><br><span class="line">    // 自定义结构体&#123;ip, port&#125;</span><br><span class="line">    sentinelAddr* addr;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">&#125; sentinelRedisInstance;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里注意sentinelRedisInstance是保存主服务器和从服务器的实例信息，但是sentinel初始化时只会连接主服务器，<a href="#point-1">这里存有疑点，后面会有解答。</a></p>
+</blockquote>
+<h4 id="创建连向主服务器的网络连接"><a href="#创建连向主服务器的网络连接" class="headerlink" title="创建连向主服务器的网络连接"></a>创建连向主服务器的网络连接</h4><p>Sentinel会创建两个连向主服务器的异步网络连接：</p>
+<ul>
+<li>命令连接，这个连接用于向主服务器发送命令，并接收命令回复</li>
+<li>订阅连接，订阅主服务器的_sentinel_:hello频道</li>
+</ul>
+<p>简单来说sentinel通过命令连接向服务器的频道发送信息，又从订阅连接，通过订阅频道接收信息，目前可以简单理解成：多个sentinel可以通过频道发布信息，使得订阅该频道的sentinel同时接收，注意到我们配置sentinel时是没有确定其他sentinel信息的，通过这种方式可以建立sentinel集群之间的通信。后文还有更加具体的用法。</p>
+<h3 id="获取主服务器信息"><a href="#获取主服务器信息" class="headerlink" title="获取主服务器信息"></a>获取主服务器信息</h3><p>Sentinel默认会以每秒十秒一次的频率，通过命令连接向被监视的主服务器发送INFO命令，主服务器会返回一些信息包括了主服务器自身的信息，还有主服务器属下所有从服务器的信息，因此sentinel无须用户提供从服务器的地址信息， 就可以自动发现这些从服务器。</p>
+<h3 id="获取从服务器信息"><a href="#获取从服务器信息" class="headerlink" title="获取从服务器信息"></a>获取从服务器信息</h3><p>当sentinel发现主服务器有新的从服务器出现时，sentinel除了会为这个新的从服务器创建从服务器得命令连接和订阅连接，和主服务器基本一致</p>
+<h3 id="向主服务器和从服务器发送信息"><a href="#向主服务器和从服务器发送信息" class="headerlink" title="向主服务器和从服务器发送信息"></a>向主服务器和从服务器发送信息</h3><p>在默认情况下,sentinel 会以每两秒一次的频率，通过命令连接向所有被监视的主服务器和从服务器发送命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBLISH _sentinel_:hello xxx xxx</span><br></pre></td></tr></table></figure>
+
+<h3 id="接收来自主服务器和从服务器的频道信息"><a href="#接收来自主服务器和从服务器的频道信息" class="headerlink" title="接收来自主服务器和从服务器的频道信息"></a>接收来自主服务器和从服务器的频道信息</h3><p>每个Sentinel订阅了服务器的_sentinel_:hello频道，因此会收到其他sentinel发送的信息，进行对监视服务器信息的更新</p>
+<p>这里更新的信息就是对sentinels字典的更新，简单来说就是有的实例则更新实例结构，若没有则添加</p>
+<p>同时通过频道信息发现一个新的sentinel时，会为sentinel在sentinels字典中创建对应的实例结构，同时创建一个命令连接(用于主观下线检测和客观下线检测)</p>
+<blockquote>
+<p>我们知道sentinel之间可以通过频道通信，为什么还需要建立互相之间的命令连接呢？私认为，是使用场景不同，命令连接用于一对一，频道连接一对多</p>
+</blockquote>
+<h3 id="下线检测"><a href="#下线检测" class="headerlink" title="下线检测"></a>下线检测</h3><p>在默认情况下，Sentinel会以每秒一次的频率向所有与它创建了命令连接的实例发送PING命令，并通过实例返回的PONG命令判断实例是否存活。如果超时未收到实例的响应信息，则认为主观下线</p>
+<p>当一个sentinel认为检测的主服务器主观下线时，会发送</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel is-master-down-by-addr xxx xxx </span><br></pre></td></tr></table></figure>
+
+<p>给其他服务器，其他服务器会返回同意&#x2F;不同意下线，当收到总票数达到阈值qourum时则会认为该节点客观下线</p>
+<p>当发生客观下线时，会进行sentinel选举，这里的选举算法就是raft算法</p>
+<p>从raft的角度理解选举过程：</p>
+<ol>
+<li>每个sentinel都是follower，有机会成为leader</li>
+<li>当发生sentinel选举的时候，会把sentinelInstance中的epoch + 1(类似termID)</li>
+<li>candidate sentinel会向其他sentinel发送sentinel命令</li>
+<li>follower sentinel投票的原则是先到先得，先接收到的会将sentinel设置为自己的局部leader</li>
+<li>如果有半数以上的sentinel设置为局部领头sentinel，那么这个sentinel就会成为领头sentinel</li>
+<li>同样的如果超时并未选出leader，则重新新选举</li>
+</ol>
+<h3 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h3><p>故障转移包括三个步骤：</p>
+<ol>
+<li>在已下线的主服务器属下的所有从服务器里面，挑选初一个从服务器，并将其转化为主服务器</li>
+<li>让已下线的主服务器属下的所有从服务器复制新的主服务器</li>
+<li>将已下线的主服务器设置为新的主服务器的从服务器</li>
+</ol>
+<p>这里如何选择从服务器呢？</p>
+<ol>
+<li>保留所有数据比较新的从服务器</li>
+<li>选择优先级高的服务器</li>
+<li>选择偏移量大的服务器</li>
+<li>选择runID小的服务器</li>
+</ol>
+<blockquote>
+<p>这里可以看出来如果发生主服务器故障，会导致数据不一致，redis集群本身就是AP</p>
+</blockquote>
+<p>对选中的从服务器发送slave of no one(你自由啦！！！)<br>将其他从服务器发送slave of xxx(变为刚才服务器的从服务器)<br>当宕机的主服务器重新上线时发送slave of(也变为从服务器)</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%A8%E5%85%B5"><span class="toc-number">1.</span> <span class="toc-text">哨兵</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E5%B9%B6%E5%88%9D%E5%A7%8B%E5%8C%96Sentinel"><span class="toc-number">1.1.</span> <span class="toc-text">启动并初始化Sentinel</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.1.1.</span> <span class="toc-text">初始化服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%BF%E6%8D%A2Sentinel%E7%9A%84%E4%B8%93%E7%94%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">1.1.2.</span> <span class="toc-text">替换Sentinel的专用代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Sentinel%E7%8A%B6%E6%80%81"><span class="toc-number">1.1.3.</span> <span class="toc-text">初始化Sentinel状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Sentinel%E7%8A%B6%E6%80%81%E7%9A%84masters%E5%B1%9E%E6%80%A7"><span class="toc-number">1.1.4.</span> <span class="toc-text">初始化Sentinel状态的masters属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%BF%9E%E5%90%91%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.1.5.</span> <span class="toc-text">创建连向主服务器的网络连接</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.</span> <span class="toc-text">获取主服务器信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.</span> <span class="toc-text">获取从服务器信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%91%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%92%8C%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8F%91%E9%80%81%E4%BF%A1%E6%81%AF"><span class="toc-number">1.4.</span> <span class="toc-text">向主服务器和从服务器发送信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A5%E6%94%B6%E6%9D%A5%E8%87%AA%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%92%8C%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E9%A2%91%E9%81%93%E4%BF%A1%E6%81%AF"><span class="toc-number">1.5.</span> <span class="toc-text">接收来自主服务器和从服务器的频道信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E7%BA%BF%E6%A3%80%E6%B5%8B"><span class="toc-number">1.6.</span> <span class="toc-text">下线检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="toc-number">1.7.</span> <span class="toc-text">故障转移</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/26/Redis-sentinel/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/26/Redis-sentinel/&text=Redis-sentinel"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/26/Redis-sentinel/&is_video=false&description=Redis-sentinel"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Redis-sentinel&body=Check out this article: http://example.com/2025/04/26/Redis-sentinel/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/26/Redis-sentinel/&title=Redis-sentinel"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/26/Redis-sentinel/&name=Redis-sentinel&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/26/Redis-sentinel/&t=Redis-sentinel"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    John Doe
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
