@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="DFS算法详解-LeetCode相关题 首先我们来了解一下基础的DFS算法  DFS：深度优先搜索，从字面上我们可以理解，搜索是优先深度的，也就是说一条路走到底再试另一条。 123456789void dfs(int src) &#123;    if (终止条件) &#123;        return;    &#125;    for (int nex : graph[src]) &amp;#12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DFS详解">
+<meta property="og:url" content="http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="羊小鱼的博客">
+<meta property="og:description" content="DFS算法详解-LeetCode相关题 首先我们来了解一下基础的DFS算法  DFS：深度优先搜索，从字面上我们可以理解，搜索是优先深度的，也就是说一条路走到底再试另一条。 123456789void dfs(int src) &#123;    if (终止条件) &#123;        return;    &#125;    for (int nex : graph[src]) &amp;#12">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-29T13:40:20.000Z">
+<meta property="article:modified_time" content="2025-04-29T14:53:13.518Z">
+<meta property="article:author" content="羊小鱼">
+<meta property="article:tag" content="dfs">
+<meta property="article:tag" content="图论">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>DFS详解</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2025/04/26/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&text=DFS详解"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&is_video=false&description=DFS详解"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DFS详解&body=Check out this article: http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&name=DFS详解&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&t=DFS详解"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DFS%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3-LeetCode%E7%9B%B8%E5%85%B3%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">DFS算法详解-LeetCode相关题</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        DFS详解
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">羊小鱼</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-29T13:40:20.000Z" class="dt-published" itemprop="datePublished">2025-04-29</time>
+        
+        (Updated: <time datetime="2025-04-29T14:53:13.518Z" class="dt-updated" itemprop="dateModified">2025-04-29</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/dfs/" rel="tag">dfs</a>, <a class="p-category" href="/tags/%E5%9B%BE%E8%AE%BA/" rel="tag">图论</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="DFS算法详解-LeetCode相关题"><a href="#DFS算法详解-LeetCode相关题" class="headerlink" title="DFS算法详解-LeetCode相关题"></a>DFS算法详解-LeetCode相关题</h2><blockquote>
+<p>首先我们来了解一下基础的DFS算法</p>
+</blockquote>
+<p>DFS：<strong>深度优先搜索</strong>，从字面上我们可以理解，搜索是优先深度的，也就是说一条路走到底再试另一条。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> src)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (终止条件) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> nex : graph[src]) &#123;</span><br><span class="line">        dfs(nex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 这是DFS基本模板 */</span></span><br></pre></td></tr></table></figure>
+
+<p>DFS一般用来解决以下几种问题:</p>
+<ol>
+<li><strong>连通分量</strong></li>
+<li><strong>判断是否有环</strong></li>
+</ol>
+<p>我们先来看一道DFS的入门题(模板题)</p>
+<hr>
+<p>给你一个由 ‘1’（陆地）和 ‘0’（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>岛屿总是被水包围，并且每座岛屿只能由水平方向和&#x2F;或竖直方向上相邻的陆地连接形成。</p>
+<p>此外，你可以假设该网格的四条边均被水包围。 –<strong>LeetCode 200</strong></p>
+<p>我们理解几个概念：</p>
+<ul>
+<li>岛屿 –被“0”包围的“1”块</li>
+<li>连通分量 – 对于一个无向图而言，连通块的各个点之间可达，可以理解成一个岛，岛内的人为一个整体，岛与岛之间不相连</li>
+</ul>
+<p>因此这题显然就是让我们求连通分量的个数，这是DFS的最简单应用，下面给出模板</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">numIslands</span><span class="params">(<span class="type">int</span>[][] grid)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">res</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> grid.length, n = grid[<span class="number">0</span>].length;</span><br><span class="line">        <span class="type">boolean</span>[][] vis = <span class="keyword">new</span> <span class="title class_">boolean</span>[m][n];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; m; ++i) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; n; ++j) &#123;</span><br><span class="line">                <span class="keyword">if</span> (grid[i][j] == <span class="number">1</span> &amp;&amp; !vis[i][j]) &#123;</span><br><span class="line">                    res++;</span><br><span class="line">                    dfs(grid, vis, i, j);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span>[][] grid, <span class="type">boolean</span>[][] vis, <span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> grid.length, n = grid[<span class="number">0</span>].length;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 不在grid范围内</span></span><br><span class="line">        <span class="keyword">if</span> (x &lt; <span class="number">0</span> || y &lt; <span class="number">0</span> || x &gt;= m || y &gt;= n) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 为海洋无法访问</span></span><br><span class="line">        <span class="keyword">if</span> (grid[x][y] == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 已被访问</span></span><br><span class="line">        <span class="keyword">if</span> (vis[x][y]) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[x][y] = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span>[] dir : dirs) &#123;</span><br><span class="line">            dfs(grid, vis, x + dir[<span class="number">0</span>], y + dir[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span>[][] dirs = &#123;&#123;-<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>&#125;, &#123;<span class="number">0</span>, -<span class="number">1</span>&#125;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很简单对吧，这里简单解释一下代码</p>
+<ul>
+<li>dirs: 代表着上下左右的方向</li>
+<li>这里每次访问到一个1时进行DFS自然就将整个连通分量全遍历过(visit)， 因此这样计算出来的就是连通分量的数量</li>
+</ul>
+<p>掌握这个模板之后，我们就可以应付很多基础的DFS题，比如求岛屿的面积、周长等</p>
+<p>图论题中往往还会有另一种形式，像上述的题目已经将图帮我们建完了，因此</p>
+<hr>
+<p>给你一个整数 n 。现有一个包含 n 个顶点的 无向 图，顶点按从 0 到 n - 1 编号。给你一个二维整数数组 edges 其中 edges[i] &#x3D; [ai, bi] 表示顶点 ai 和 bi 之间存在一条 无向 边。</p>
+<p>返回图中 完全连通分量 的数量。</p>
+<p>如果在子图中任意两个顶点之间都存在路径，并且子图中没有任何一个顶点与子图外部的顶点共享边，则称其为 连通分量 。</p>
+<p>如果连通分量中每对节点之间都存在一条边，则称其为 完全连通分量 。 – <strong>LeetCode 2685</strong></p>
+<p>这题没有直接给出网格图，因此首先我们需要自己建图，这里介绍一种我喜欢的建图方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt;[] graph = <span class="keyword">new</span> <span class="title class_">List</span>[n];</span><br><span class="line">Arrays.setAll(graph, i -&gt; <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;());</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span>[] edge : edges) &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">x</span> <span class="operator">=</span> edge[<span class="number">0</span>];</span><br><span class="line">    <span class="type">int</span> <span class="variable">y</span> <span class="operator">=</span> edge[<span class="number">1</span>];</span><br><span class="line">    graph[x].add(y);</span><br><span class="line">    graph[y].add(x);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 该是双向图的建图法，单向图需要注意边的方向*/</span></span><br></pre></td></tr></table></figure>
+<p>下面给出该题的解题思路和解法：<br>题目已经说明完全连通分量的概念，这里存在一个公式 e &#x3D; v * (v - 1) &#x2F; 2; 这是很显然的因为每个点之间都存在一条边,因此我们只需要通过dfs遍历得到连通分量判断是否是完全连通分量即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">countCompleteComponents</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span>[][] edge)</span> &#123;</span><br><span class="line">        <span class="comment">// 套建图模板</span></span><br><span class="line">        List&lt;Integer&gt;[] graph = <span class="keyword">new</span> <span class="title class_">List</span>[n];</span><br><span class="line">        Arrays.setAll(graph, i -&gt; <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;());</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span>[] edge : edges) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">x</span> <span class="operator">=</span> edge[<span class="number">0</span>];</span><br><span class="line">            <span class="type">int</span> <span class="variable">y</span> <span class="operator">=</span> edge[<span class="number">1</span>];</span><br><span class="line">            graph[x].add(y);</span><br><span class="line">            graph[y].add(x);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">boolean</span>[] vis = <span class="keyword">new</span> <span class="title class_">boolean</span>[n];</span><br><span class="line">        <span class="type">int</span> <span class="variable">res</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (vis[i]) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            e = <span class="number">0</span>, v = <span class="number">0</span>;</span><br><span class="line">            dfs(graph, i, vis);</span><br><span class="line">            <span class="keyword">if</span> (e == v * (v - <span class="number">1</span>)) &#123;</span><br><span class="line">                res++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 边</span></span><br><span class="line">    <span class="type">int</span> e;</span><br><span class="line">    <span class="comment">// 点</span></span><br><span class="line">    <span class="type">int</span> v;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">dfs</span><span class="params">(List&lt;Integer&gt;[] graph, <span class="type">int</span> cur, <span class="type">boolean</span>[] vis)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (vis[cur]) &#123;</span><br><span class="line">            <span class="keyword">return</span>；</span><br><span class="line">        &#125;</span><br><span class="line">        vis[cur] = <span class="literal">true</span>;</span><br><span class="line">        v++;</span><br><span class="line">        e += graph[cur].size();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> nex : graph[cur]) &#123;</span><br><span class="line">            dfs(graph, nex, vis);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 值得注意的是其实在我们的dfs函数中，每条边被算了两次*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来再介绍两种用DFS判环的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Method 1*/</span></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">dfs</span><span class="params">(List&lt;Integer&gt;[] graph, <span class="type">int</span> cur, <span class="type">boolean</span>[] vis, <span class="type">boolean</span>[] path)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (path[cur]) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (vis[cur]) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    vis[cur] = <span class="literal">true</span>;</span><br><span class="line">    path[cur] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> nex : graph[cur]) &#123;</span><br><span class="line">        <span class="keyword">if</span>(dfs(graph, nex, vis, path)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    path[cur] = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="comment">/*Method 2*/</span></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">dfs</span><span class="params">(List&lt;Integer&gt;[] graph, <span class="type">int</span> cur, <span class="type">int</span> fa, <span class="type">boolean</span>[] vis)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (vis[cur]) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[cur] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> nex : graph[cur]) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nex == fa) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">if</span>(dfs(graph, nex, cur, vis))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*Method 3*/</span></span><br><span class="line"><span class="comment">/*三色标记法*/</span></span><br><span class="line"><span class="comment">/*0 代表未访问 1代表正在访问 2代表已访问*/</span></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">dfs</span><span class="params">(List&lt;Integer&gt; graph, <span class="type">int</span> cur, <span class="type">int</span>[] color)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (color[cur] == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (color[cur] == <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    color[cur] = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> nex : graph[cur]) &#123;</span><br><span class="line">        <span class="keyword">if</span>(dfs(graph, cur, color)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    color[cur] = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>核心思路就是DFS不能访问到仍在递归栈的数，比如1 -&gt; 2 -&gt; 3 -&gt; 1, 这条DFS路线，当1往下递归时又遇到了自己这代表形成了环</p>
+<hr>
+<p>你这个学期必须选修 numCourses 门课程，记为 0 到 numCourses - 1 。</p>
+<p>在选修某些课程之前需要一些先修课程。 先修课程按数组 prerequisites 给出，其中 prerequisites[i] &#x3D; [ai, bi] ，表示如果要学习课程 ai 则 必须 先学习课程  bi 。</p>
+<p>例如，先修课程对 [0, 1] 表示：想要学习课程 0 ，你需要先完成课程 1 。<br>请你判断是否可能完成所有课程的学习？如果可以，返回 true ；否则，返回 false 。 – *<strong>LeetCode 207</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">canFinish</span><span class="params">(<span class="type">int</span> numCourses, <span class="type">int</span>[][] prerequisites)</span> &#123;</span><br><span class="line">    List&lt;Integer&gt;[] graph = <span class="keyword">new</span> <span class="title class_">List</span>[numCourses];</span><br><span class="line">    Arrays.setAll(graph, i -&gt; <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;());</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span>[] edge : prerequisites) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">x</span> <span class="operator">=</span> edge[<span class="number">0</span>];</span><br><span class="line">        <span class="type">int</span> <span class="variable">y</span> <span class="operator">=</span> edge[<span class="number">1</span>];</span><br><span class="line">        graph[x].add(y);</span><br><span class="line">        <span class="comment">/* 单向图 */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span>[] color = <span class="keyword">new</span> <span class="title class_">int</span>[numCoureses];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; numCoureses; ++i) &#123;</span><br><span class="line">        <span class="keyword">if</span> (color[i] == <span class="number">2</span>) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">if</span> (dfs(graph, i, color)) &#123;</span><br><span class="line">            <span class="comment">/* 存在环不能完成课程 */</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">dfs</span><span class="params">(List&lt;Integer&gt;[] graph, <span class="type">int</span> cur, <span class="type">int</span>[] color)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (color[cur] == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (color[cur] == <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    color[cur] = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> nex : graph[cur]) &#123;</span><br><span class="line">        <span class="keyword">if</span>(dfs(graph, nex, color)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/categories/">分类</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DFS%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3-LeetCode%E7%9B%B8%E5%85%B3%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">DFS算法详解-LeetCode相关题</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&text=DFS详解"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&is_video=false&description=DFS详解"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DFS详解&body=Check out this article: http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&title=DFS详解"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&name=DFS详解&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/&t=DFS详解"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    羊小鱼
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4fdd1e0d58c509f34608535f10c7458a";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>  
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
