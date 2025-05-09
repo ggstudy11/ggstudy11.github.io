@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>并查集</title>
+      <link href="/2025/05/09/%E5%B9%B6%E6%9F%A5%E9%9B%86/"/>
+      <url>/2025/05/09/%E5%B9%B6%E6%9F%A5%E9%9B%86/</url>
+      
+        <content type="html"><![CDATA[<h2 id="并查集"><a href="#并查集" class="headerlink" title="并查集"></a>并查集</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">UnionFind</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span>[] fa; <span class="comment">// 代表元</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span>[] size; <span class="comment">// 大小</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> cc; <span class="comment">// 连通块个数</span></span><br><span class="line"></span><br><span class="line">    UnionFind(<span class="type">int</span> n) &#123;</span><br><span class="line">        fa = <span class="keyword">new</span> <span class="title class_">int</span>[n];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">            fa[i] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        size = <span class="keyword">new</span> <span class="title class_">int</span>[n];</span><br><span class="line">        Arrays.fill(size, <span class="number">1</span>);</span><br><span class="line">        cc = n;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 返回x所在集合的代表元 */</span></span><br><span class="line">    <span class="comment">/* 同时做路径压缩 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">find</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (fa[x] != x) &#123;</span><br><span class="line">            fa[x] = find(fa[x]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> fa[x];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isSame</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> find(x) == find(y);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">merge</span><span class="params">(<span class="type">int</span> from, <span class="type">int</span> to)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">x</span> <span class="operator">=</span> find(from);</span><br><span class="line">        <span class="type">int</span> <span class="variable">y</span> <span class="operator">=</span> find(to);</span><br><span class="line">        <span class="keyword">if</span> (x == y) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        fa[x] = y;</span><br><span class="line">        size[y] += size[x];</span><br><span class="line">        cc--;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getSize</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> size[find(x)];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>简单来说并查集的作用就是把点按连通块分开</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 并查集 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>网络系统</title>
       <link href="/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/"/>
       <url>/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/</url>
