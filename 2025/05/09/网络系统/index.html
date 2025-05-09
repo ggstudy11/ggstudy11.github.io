@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="网络系统什么是零拷贝？磁盘可以说是计算机系统最慢的硬件之一，读写速度相差内存10倍以上，所以针对优化磁盘技术非常多，比如零拷贝，直接IO，异步IO等，这些优化的目的就是为了提高系统的吞吐量，另外操作系统内核中的磁盘告诉缓存区可以有效减少磁盘访问次数 为什么要有DMA技术？在没有DMA技术前，IO的过程是这样的：  CPU发出对应指令给磁盘控制器，然后返回 磁盘控制器收到指令后，开始准备数据，会把数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络系统">
+<meta property="og:url" content="http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="羊小鱼的博客">
+<meta property="og:description" content="网络系统什么是零拷贝？磁盘可以说是计算机系统最慢的硬件之一，读写速度相差内存10倍以上，所以针对优化磁盘技术非常多，比如零拷贝，直接IO，异步IO等，这些优化的目的就是为了提高系统的吞吐量，另外操作系统内核中的磁盘告诉缓存区可以有效减少磁盘访问次数 为什么要有DMA技术？在没有DMA技术前，IO的过程是这样的：  CPU发出对应指令给磁盘控制器，然后返回 磁盘控制器收到指令后，开始准备数据，会把数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-09T05:33:37.000Z">
+<meta property="article:modified_time" content="2025-05-09T07:17:05.979Z">
+<meta property="article:author" content="羊小鱼">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>网络系统</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2025/04/29/DFS%E8%AF%A6%E8%A7%A3/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&text=网络系统"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&is_video=false&description=网络系统"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=网络系统&body=Check out this article: http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&name=网络系统&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&t=网络系统"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.</span> <span class="toc-text">网络系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%9B%B6%E6%8B%B7%E8%B4%9D%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">什么是零拷贝？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%9C%89DMA%E6%8A%80%E6%9C%AF%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">为什么要有DMA技术？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9A%84%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93"><span class="toc-number">1.1.2.</span> <span class="toc-text">服务端的文件传输</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93%E7%9A%84%E6%80%A7%E8%83%BD%EF%BC%9F"><span class="toc-number">1.1.3.</span> <span class="toc-text">如何优化文件传输的性能？</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        网络系统
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">羊小鱼</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-05-09T05:33:37.000Z" class="dt-published" itemprop="datePublished">2025-05-09</time>
+        
+        (Updated: <time datetime="2025-05-09T07:17:05.979Z" class="dt-updated" itemprop="dateModified">2025-05-09</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/os/">os</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="网络系统"><a href="#网络系统" class="headerlink" title="网络系统"></a>网络系统</h2><h3 id="什么是零拷贝？"><a href="#什么是零拷贝？" class="headerlink" title="什么是零拷贝？"></a>什么是零拷贝？</h3><p>磁盘可以说是计算机系统最慢的硬件之一，读写速度相差内存10倍以上，所以针对优化磁盘技术非常多，比如零拷贝，直接IO，异步IO等，这些优化的目的就是为了提高系统的吞吐量，另外操作系统内核中的磁盘告诉缓存区可以有效减少磁盘访问次数</p>
+<h4 id="为什么要有DMA技术？"><a href="#为什么要有DMA技术？" class="headerlink" title="为什么要有DMA技术？"></a>为什么要有DMA技术？</h4><p>在没有DMA技术前，IO的过程是这样的：</p>
+<ul>
+<li>CPU发出对应指令给磁盘控制器，然后返回</li>
+<li>磁盘控制器收到指令后，开始准备数据，会把数据放入到磁盘控制器内部的缓冲区，然后产生一个终端</li>
+<li>CPU收到中断信号后，停下手头的工作，接着把磁盘控制器的缓冲区的数据一次一个字节的读进自己的寄存器，然后再把寄存器里的数据写入到内存，而在数据传输期间CPU是无法执行其他任务的</li>
+</ul>
+<p>因此在进行IO设备和内存的数据传输的时候，数据搬运的工作全部交给DMA控制器，而CPU不再参与任何与数据搬运相关的事情</p>
+<p><strong>具体流程</strong></p>
+<ul>
+<li>用户进程调用read方法,向操作系统发出IO请求，请求读取数据到自己的内存缓冲区，进程进入阻塞状态</li>
+<li>操作系统收到请求后，进一步将IO请求发送DMA，然后让CPU执行其他任务</li>
+<li>DMA进一步将IO请求发送给磁盘</li>
+<li>磁盘收到DMA的IO请求后，把数据从磁盘读取到磁盘控制器的缓冲区中，当磁盘控制器的缓冲区被读满后，向DMA发起中断信号，告知自己缓冲区已满</li>
+<li>DMA收到磁盘信号，将磁盘控制缓冲区中的数据拷贝到内核缓冲区中，此时不占用CPU，CPU可以执行其他任务</li>
+<li>当DMA读取了足够多的数据后，就会发中断信号给CPU</li>
+<li>CPU收到DMA信号，知道数据已经准备好，于是将数据从内核拷贝到用户空间，系统调用返回</li>
+</ul>
+<p>CPU不再参与将数据从磁盘控制缓冲区搬运到内核空间的工作，这部分工作全程由DMA完成。</p>
+<h4 id="服务端的文件传输"><a href="#服务端的文件传输" class="headerlink" title="服务端的文件传输"></a>服务端的文件传输</h4><p>如果服务端要提供文件传输功能，两个步骤：</p>
+<ul>
+<li>将磁盘上的文件读取出来</li>
+<li>通过网络协议发送给客户端</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">read(file, tmp_buf, len);</span><br><span class="line">write(socket, tmp_buf, len);</span><br></pre></td></tr></table></figure>
+
+<p>期间发生了4次用户态和内核态的上下文切换。<br>4次用户态和内核态切换：因为发生了两次系统调用，一次是read()，另一次是write()，每次系统调用都得先从用户态切换到内核态，等内核完成任务后，再从内核态切换回用户态</p>
+<p>4次数据拷贝:其中两次是DMA的拷贝，另外两次则是通过CPU拷贝的：</p>
+<ul>
+<li>第一次拷贝，把磁盘上的数据拷贝到操作系统内核的缓冲区里，这个卡贝的过程则是通过DMA搬运的</li>
+<li>第二次拷贝，把内核缓冲区的数据拷贝到用户的缓冲区里，于是我们应用程序就可以使用这部分数据了，这个拷贝过程是由CPU完成的</li>
+<li>第三次拷贝，把刚才拷贝到用户的缓冲区里的数据，再拷贝到内核的socket的缓冲区里，这个过程依然是CPU搬运的</li>
+<li>第四次拷贝，把内核的socket缓冲区里的数据，拷贝到网卡的缓冲区里，这个过程又是DMA搬运的。</li>
+</ul>
+<p>我们可以发现有很多次的数据拷贝，同时存在了冗余的上下文切换和数据拷贝，多了很多不必要的开销，会严重影响系统性能</p>
+<p>所以，要提高文件传输性能，必须减少用户态与内核态的上下文切换和内存拷贝的次数</p>
+<h4 id="如何优化文件传输的性能？"><a href="#如何优化文件传输的性能？" class="headerlink" title="如何优化文件传输的性能？"></a>如何优化文件传输的性能？</h4><p>一次系统调用必然会发生2次上下文切换，首先从用户态切换到内核态，当内核执行完任务之后，再切换回用户态交由进程代码执行</p>
+<p><strong>要想减少上下文切换次数，就要减少系统调用次数</strong></p>
+<blockquote>
+<p>如何减少数据拷贝次数<br>在上面那个场景中，我们会历经4次数据拷贝，而因为我们并没有对数据<strong>再加工</strong>，所以数据实际上可以不用搬运到用户空间，因此用户的缓冲区是没有必要存在的。</p>
+</blockquote>
+<p>这里存在两种<strong>零拷贝技术</strong></p>
+<ul>
+<li>mmap + write</li>
+<li>sendfile</li>
+</ul>
+<p><strong>mmap + write</strong><br>read() 系统调用会把内核缓冲区的数据拷贝到用户缓冲区中，于是为了减少这一步开销，我们可以用mmap()替换read()系统调用函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">buf = mmap(file, len);</span><br><span class="line">wrtie(sockfd, buf, len);</span><br></pre></td></tr></table></figure>
+
+<p>mmap() 系统调用函数会直接把内核缓冲区里的数据<strong>映射</strong>到用户空i教案，这样操作系统内核与用户空间就不需要再进行任何的数据拷贝操作。</p>
+<p><strong>具体流程</strong></p>
+<ul>
+<li>应用进程调用了mmap后，DMA会把磁盘的数据拷贝到内核缓冲区里，接着，应用进程跟操作系统内核共享这个缓冲区</li>
+<li>应用进程再调用write(), 操作系统直接将内核缓冲区的数据拷贝到socket缓冲区中，这一切都发生在内核态，由CPU来搬运书</li>
+<li>最后，把内核的socket缓冲区里的数据，拷贝到网卡的缓冲区里，这个过程是由DMA搬运的</li>
+</ul>
+<p>sendfile可以替换前面的read和write两个系统调用，这样可以减少一次系统调用，减少了2次上下文切换的开销</p>
+<p>真正的<strong>零拷贝</strong>技术，因为我们没有在内存层面去拷贝数据，也就是说全程没有CPU来搬运数据，所以数据都是通过DMA来进行传输的。简单来说就是，网卡控制器可以直接将内核缓冲区的数据拷贝到网卡缓冲区中，减少了一次CPU的拷贝 </p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/categories/">分类</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.</span> <span class="toc-text">网络系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%9B%B6%E6%8B%B7%E8%B4%9D%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">什么是零拷贝？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%9C%89DMA%E6%8A%80%E6%9C%AF%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">为什么要有DMA技术？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9A%84%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93"><span class="toc-number">1.1.2.</span> <span class="toc-text">服务端的文件传输</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93%E7%9A%84%E6%80%A7%E8%83%BD%EF%BC%9F"><span class="toc-number">1.1.3.</span> <span class="toc-text">如何优化文件传输的性能？</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&text=网络系统"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&is_video=false&description=网络系统"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=网络系统&body=Check out this article: http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&title=网络系统"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&name=网络系统&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/05/09/%E7%BD%91%E7%BB%9C%E7%B3%BB%E7%BB%9F/&t=网络系统"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    羊小鱼
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4fdd1e0d58c509f34608535f10c7458a";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>  
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
