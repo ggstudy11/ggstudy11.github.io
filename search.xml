@@ -4,6 +4,63 @@
   
     
     <entry>
+      <title>实习日记-week1</title>
+      <link href="/2025/05/17/%E5%AE%9E%E4%B9%A0%E6%97%A5%E8%AE%B0-week1/"/>
+      <url>/2025/05/17/%E5%AE%9E%E4%B9%A0%E6%97%A5%E8%AE%B0-week1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="实习日记-week1"><a href="#实习日记-week1" class="headerlink" title="实习日记-week1"></a>实习日记-week1</h1><p>经过了上周的onboarding week，这周正式进入业务部门，我们部门是写node的，主要做gloabl的发票业务，听另一个实习生说架构很复杂，还有投入AI agent的探索, 这里是比较感兴趣的。mentor人很好，但是一幅命苦打工人的样子(lol)，真正与同事接触才发现自己交际能力真的不太行，但是还是要好好相处呀</p><p>这周学习</p><ul><li>node</li><li>js</li><li>一个简单的oss工具</li></ul><p>下周预期开始学习cap，公司的后端框架，希望能早点接触到业务代码</p><p>不管怎么样，踏踏实实走好每一步，不然机会来临时都无法把握住，好好学习！！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 实习 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>认识node.js</title>
+      <link href="/2025/05/12/%E8%AE%A4%E8%AF%86node-js/"/>
+      <url>/2025/05/12/%E8%AE%A4%E8%AF%86node-js/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h2><blockquote><p>First of all， Node is not a programming language but its runtime env for executing js code</p></blockquote><p>node的一个很大优势就是异步，如何理解：<br>对于一个常见的web应用，一个request对应一个线程，如果那么并发数限制于最大线程数。<br>但是node后端来说，他是异步的，在对数据库操作时，可以不被阻塞，而是处理另一个request</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 后端 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> node </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>DP-爬楼梯</title>
+      <link href="/2025/05/12/DP-%E7%88%AC%E6%A5%BC%E6%A2%AF/"/>
+      <url>/2025/05/12/DP-%E7%88%AC%E6%A5%BC%E6%A2%AF/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>并查集</title>
       <link href="/2025/05/09/%E5%B9%B6%E6%9F%A5%E9%9B%86/"/>
       <url>/2025/05/09/%E5%B9%B6%E6%9F%A5%E9%9B%86/</url>
