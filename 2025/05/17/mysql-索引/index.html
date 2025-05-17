@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="mysq索引 索引是什么？索引本质上是对数据的目录  1.索引的分类我们可以从四个方面对索引进行分类：  按[数据结构]划分：B+Tree 、Hash、Full-text索引 按[物理存储]划分：聚簇索引、二级索引 按[字段特性]划分：主键索引、唯一索引、普通索引、前缀索引 按[字段个数]划分：单列索引、联合索引  1.1 B+Tree我们知道mysql底层有三种执行引擎：    Innodb M">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql-索引">
+<meta property="og:url" content="http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/index.html">
+<meta property="og:site_name" content="羊小鱼的博客">
+<meta property="og:description" content="mysq索引 索引是什么？索引本质上是对数据的目录  1.索引的分类我们可以从四个方面对索引进行分类：  按[数据结构]划分：B+Tree 、Hash、Full-text索引 按[物理存储]划分：聚簇索引、二级索引 按[字段特性]划分：主键索引、唯一索引、普通索引、前缀索引 按[字段个数]划分：单列索引、联合索引  1.1 B+Tree我们知道mysql底层有三种执行引擎：    Innodb M">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-17T08:40:15.000Z">
+<meta property="article:modified_time" content="2025-05-17T10:11:57.783Z">
+<meta property="article:author" content="羊小鱼">
+<meta property="article:tag" content="mysql索引">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>mysql-索引</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2025/05/17/mysql-%E6%9E%B6%E6%9E%84/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&text=mysql-索引"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&is_video=false&description=mysql-索引"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=mysql-索引&body=Check out this article: http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&name=mysql-索引&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&t=mysql-索引"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mysq%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">mysq索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.</span> <span class="toc-text">1.索引的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-B-Tree"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 B+Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 联合索引的最左匹配原则</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        mysql-索引
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">羊小鱼</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-05-17T08:40:15.000Z" class="dt-published" itemprop="datePublished">2025-05-17</time>
+        
+        (Updated: <time datetime="2025-05-17T10:11:57.783Z" class="dt-updated" itemprop="dateModified">2025-05-17</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/mysql/">mysql</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/mysql%E7%B4%A2%E5%BC%95/" rel="tag">mysql索引</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="mysq索引"><a href="#mysq索引" class="headerlink" title="mysq索引"></a>mysq索引</h1><blockquote>
+<p>索引是什么？索引本质上是对数据的目录</p>
+</blockquote>
+<h2 id="1-索引的分类"><a href="#1-索引的分类" class="headerlink" title="1.索引的分类"></a>1.索引的分类</h2><p>我们可以从四个方面对索引进行分类：</p>
+<ul>
+<li>按[数据结构]划分：B+Tree 、Hash、Full-text索引</li>
+<li>按[物理存储]划分：聚簇索引、二级索引</li>
+<li>按[字段特性]划分：主键索引、唯一索引、普通索引、前缀索引</li>
+<li>按[字段个数]划分：单列索引、联合索引</li>
+</ul>
+<h3 id="1-1-B-Tree"><a href="#1-1-B-Tree" class="headerlink" title="1.1 B+Tree"></a>1.1 B+Tree</h3><p>我们知道mysql底层有三种执行引擎：</p>
+<table>
+<thead>
+<tr>
+<th>Innodb</th>
+<th>Memory</th>
+<th>MyISAM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>三种执行引擎都是支持B+Tree索引的</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>接下来我们详细介绍一下该索引</p>
+<p>Innodb默认的索引就是B+Tree，在创建表时有三种策略：</p>
+<ol>
+<li>如果主键，会默认将主键作为索引值</li>
+<li>如果没有主键，则会选择第一个不包含null的字段作为索引值</li>
+<li>在以上两者都没有的情况下，则会创建一个隐式自增的字段作为索引值</li>
+</ol>
+<p>B+树是一个多叉树，其节点可以分为叶子节点和非叶子节点，其中叶子节点存放具体数据，非叶子节点存放索引</p>
+<p>B+树在数据量很大(千万级别)，仍能保持三～四层树高，因此能保证较低的磁盘IO开销</p>
+<p>其中叶子节点还需要区分主键索引和二级索引，主键🆚二级：</p>
+<ul>
+<li>主键索引：叶子节点中的val包含了完整的行数据</li>
+<li>二级索引：叶子节点的val只包含了主键值</li>
+</ul>
+<p>这就代表这二级索引往往需要回表操作：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> age <span class="operator">=</span> <span class="number">10</span> <span class="keyword">and</span> salary <span class="operator">&gt;</span> <span class="number">20000</span></span><br></pre></td></tr></table></figure>
+<p>对于这一行sql语句而言，假设我们建立了二级索引(age, salary)我们可以知道，这个索引是会生效的(索引失效是后话)，对于该二级索引，对应的B+树结构应该是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">key：（age， salary）</span><br><span class="line">val：（id）</span><br></pre></td></tr></table></figure>
+<p>在这种情况下，select要求的是所有字段的数据，二级索引找到后还需要根据主键id进行回表查找，返回整个行数据</p>
+<p>但是不是所有二级索引都需要回表的，假如我们把上述的sql改成</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> age, salary <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> age <span class="operator">=</span> <span class="number">10</span> <span class="keyword">and</span> salary <span class="operator">&gt;</span> <span class="number">20000</span></span><br></pre></td></tr></table></figure>
+<p>这种情况下就不需要回表了，因为二级索引查找到后已经能够返回所有数据了。</p>
+<p>B+Tree 🆚 BTree：</p>
+<ul>
+<li>区别一：B+Tree的非叶子节点只存放索引，这样可以让树更加扁平，降低磁盘io开销</li>
+<li>区别二：B+Tree的叶子节点之间由双向链表组织，在范围查询时可以直接通过这个链表遍历，而BTree只能通过树的遍历方式</li>
+</ul>
+<h3 id="1-2-联合索引的最左匹配原则"><a href="#1-2-联合索引的最左匹配原则" class="headerlink" title="1.2 联合索引的最左匹配原则"></a>1.2 联合索引的最左匹配原则</h3><p>对于联合索引而言，存在<strong>最左匹配原则</strong> </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 对于索引(a, b, c)而言</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> a <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> b <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> c <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> a <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> c <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> a <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> b <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"># 这些都是生效的</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> b <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> c <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> b <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> c <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"># 这些都是不生效的</span><br></pre></td></tr></table></figure>
+
+<p>具体原因分析：<br>对于联合索引而言，索引键排序是按照设定的联合索引顺序依次比较的，也就是说对于联合索引(a, b, c)是在a相同的情况下比较b，b相同的情况下比较c，这里和字符串比较有些相近</p>
+<p>因此我们可以认为b和c这两个字段是<strong>局部有序</strong>的</p>
+<p>接下来我们介绍索引失效的情况：</p>
+<blockquote>
+<p>首先我们需要理解where是怎么完成过滤的，如where a &#x3D; 1 and b &#x3D; 2，我们会先找出所有满足a &#x3D; 1的记录(比如10条)，接下来我们再在这十条里找b &#x3D; 2的记录</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/categories/">分类</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mysq%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">mysq索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.</span> <span class="toc-text">1.索引的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-B-Tree"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 B+Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 联合索引的最左匹配原则</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&text=mysql-索引"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&is_video=false&description=mysql-索引"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=mysql-索引&body=Check out this article: http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&title=mysql-索引"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&name=mysql-索引&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/&t=mysql-索引"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2025
+    羊小鱼
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ggstudy11/">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4fdd1e0d58c509f34608535f10c7458a";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>  
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
