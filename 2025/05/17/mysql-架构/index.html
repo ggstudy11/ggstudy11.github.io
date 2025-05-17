@@ -14,7 +14,7 @@
 <meta property="og:description" content="mysql架构1.总体概述Mysql简单来说可以分成两层：  server层 执行引擎层  server层：负责与客户端建立连接，分析、优化、执行sql语句存储引擎层：负责数据的存储与读取  简单来理解就是，server层是大脑，通过分析sql语句让存储引擎层（执行者）去做存储或读取数据  2. 核心组件2.1 server层 连接器首先我们使用mysql第一步就是与mysql服务器建立连接 1m">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-05-17T03:48:06.000Z">
-<meta property="article:modified_time" content="2025-05-17T06:27:46.017Z">
+<meta property="article:modified_time" content="2025-05-17T06:31:19.037Z">
 <meta property="article:author" content="羊小鱼">
 <meta property="article:tag" content="mysql架构">
 <meta name="twitter:card" content="summary">
@@ -146,7 +146,7 @@
       
         <time datetime="2025-05-17T03:48:06.000Z" class="dt-published" itemprop="datePublished">2025-05-17</time>
         
-        (Updated: <time datetime="2025-05-17T06:27:46.017Z" class="dt-updated" itemprop="dateModified">2025-05-17</time>)
+        (Updated: <time datetime="2025-05-17T06:31:19.037Z" class="dt-updated" itemprop="dateModified">2025-05-17</time>)
         
       
     </div>
@@ -250,7 +250,7 @@
 </ul>
 <h4 id="2-2-1-表空间结构"><a href="#2-2-1-表空间结构" class="headerlink" title="2.2.1 表空间结构"></a>2.2.1 表空间结构</h4><p>  表空间由段、区、页、行组成的：<br>  一个表空间由多个段组成，每个段中包含多个区，一个区中有多个页，一个页中有多个行</p>
 <ol>
-<li>行</li>
+<li>行<br>mysql提供了两种数据格式：<br>- compact<br>- dynamic</li>
 <li>页<br>数据库的记录是一行一行的，但是数据库的最小操作单元是以页为单位的，也就是说读取一行数据，是将该行所在的数据页读取出来，同时写入数据时也是以页为单位的，一次最小将16kb大小的缓存页刷入磁盘。</li>
 <li>区<br>我们知道InnoDB是存储引擎是通过B+树存储数据的。我们知道B+树的每一层，都是通过双向链表连接的，假如以页为单位分配空间，那么链表中的两个页之间的物理内存并不是连续的，可能离得比较远，那么磁盘查询时就会有大量的随机IO，因此在表中数据量比较大的情况下，为某个索引分配空间时，就不再按照以页为单位分配，而是按照区的方式，将物理空间上相连的页组织成一个区，这样就是顺序IO了</li>
 <li>段<br>是由各个区组成的，一般分为：数据段、索引段、回滚段<br>- 索引段：存放非叶子阶段的区的集合<br>- 数据段：存放叶子阶段的区的集合<br>- 回滚段：存放的是回滚的数据</li>
