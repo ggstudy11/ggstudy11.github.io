@@ -14,7 +14,7 @@
 <meta property="og:description" content="mysq索引 索引是什么？索引本质上是对数据的目录  1.索引的分类我们可以从四个方面对索引进行分类：  按[数据结构]划分：B+Tree 、Hash、Full-text索引 按[物理存储]划分：聚簇索引、二级索引 按[字段特性]划分：主键索引、唯一索引、普通索引、前缀索引 按[字段个数]划分：单列索引、联合索引  1.1 B+Tree我们知道mysql底层有三种执行引擎：    Innodb M">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-05-17T08:40:15.000Z">
-<meta property="article:modified_time" content="2025-05-17T10:11:57.783Z">
+<meta property="article:modified_time" content="2025-05-18T09:47:12.789Z">
 <meta property="article:author" content="羊小鱼">
 <meta property="article:tag" content="mysql索引">
 <meta name="twitter:card" content="summary">
@@ -119,7 +119,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mysq%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">mysq索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.</span> <span class="toc-text">1.索引的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-B-Tree"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 B+Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 联合索引的最左匹配原则</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mysq%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">mysq索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.</span> <span class="toc-text">1.索引的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-B-Tree"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 B+Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 联合索引的最左匹配原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E7%B4%A2%E5%BC%95%E5%8C%BA%E5%88%86%E5%BA%A6"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 索引区分度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%BB%BA%E7%AB%8B"><span class="toc-number">1.2.</span> <span class="toc-text">2. 索引的建立</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%BC%98%E5%8C%96%E7%B4%A2%E5%BC%95%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">3. 优化索引的方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%9C%BA%E6%99%AF"><span class="toc-number">1.4.</span> <span class="toc-text">4. 索引失效场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E9%97%AE%E9%A2%98"><span class="toc-number">1.5.</span> <span class="toc-text">深度分页问题</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -146,7 +146,7 @@
       
         <time datetime="2025-05-17T08:40:15.000Z" class="dt-published" itemprop="datePublished">2025-05-17</time>
         
-        (Updated: <time datetime="2025-05-17T10:11:57.783Z" class="dt-updated" itemprop="dateModified">2025-05-17</time>)
+        (Updated: <time datetime="2025-05-18T09:47:12.789Z" class="dt-updated" itemprop="dateModified">2025-05-18</time>)
         
       
     </div>
@@ -237,6 +237,88 @@
 <blockquote>
 <p>首先我们需要理解where是怎么完成过滤的，如where a &#x3D; 1 and b &#x3D; 2，我们会先找出所有满足a &#x3D; 1的记录(比如10条)，接下来我们再在这十条里找b &#x3D; 2的记录</p>
 </blockquote>
+<p>因此对于(a, b)这个联合索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> a <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> b <span class="operator">=</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>首先通过索引先找到a &#x3D; 1的位置，因为对于a &#x3D; 1的情况下，b 也是有序的，可以根据索引继续快速定位b</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> a <span class="operator">&gt;</span> <span class="number">1</span> <span class="keyword">and</span> b <span class="operator">=</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>先根据a &gt; 1快速定位a，但是由于a &gt; 1的情况下 b并不是有序的，比如(2, 3), (3, 2), (4, 1) 因此无法根据索引快速定位b，因此我们称该联合索引部分命中</p>
+<p>我们可以简单理解成范围查询处会中断联合索引，只有等值查询才可以继续使用索引</p>
+<p>我们再来看一种情况</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> a <span class="operator">&gt;=</span> <span class="number">1</span> <span class="keyword">and</span> b <span class="operator">=</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>这种情况下也是用到了索引，因为a &#x3D; 1的时候可以根据索引快速定位b</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> name <span class="keyword">like</span> <span class="string">&#x27;j%&#x27;</span> <span class="keyword">and</span> b <span class="operator">=</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>这种情况下也是能命中索引，其实这里的原理和&#x3D;相同，第一条记录是’j‘在这种情况下b是有序的因此也能使用索引</p>
+<p>这里可以和索引下推起来思考，<strong>索引下推就是弥补这种情况出现的</strong></p>
+<h3 id="1-3-索引区分度"><a href="#1-3-索引区分度" class="headerlink" title="1.3 索引区分度"></a>1.3 索引区分度</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">区分度 = distinct(column) / count(*)</span><br></pre></td></tr></table></figure>
+
+<p>比如性别只有男&#x2F;女，因此它的区分度特别低，一般不考虑做索引</p>
+<h2 id="2-索引的建立"><a href="#2-索引的建立" class="headerlink" title="2. 索引的建立"></a>2. 索引的建立</h2><blockquote>
+<p>那么什么时候我们需要索引，什么时候我们不需要索引呢？</p>
+</blockquote>
+<p>索引的缺点：</p>
+<ul>
+<li>需要占用物理空间，数量越大，空间越大</li>
+<li>创建索引和维护索引需要消耗时间，这个时间随着数据量增大而增大</li>
+<li>会降低表的增删改效率，当每次增删改索引时，B+树需要动态维护</li>
+</ul>
+<p>那么什么时候我们需要创建索引呢？</p>
+<ul>
+<li>字段具有唯一性特征</li>
+<li>经常用于WHERE的字段，如果能提高查询效率可以添加索引</li>
+<li>需要GROUP BY和ORDER BY的字段，这样就不用再排序了</li>
+</ul>
+<p>什么时候不需要索引？</p>
+<ul>
+<li>表的数据量不大</li>
+<li>字段的区分度不高</li>
+<li>表需要经常进行更新</li>
+</ul>
+<h2 id="3-优化索引的方法"><a href="#3-优化索引的方法" class="headerlink" title="3. 优化索引的方法"></a>3. 优化索引的方法</h2><ul>
+<li>前缀索引优化<br>顾名思义就是根据字符串的前几个字符建立索引，而不是全部，这样能够减少一个索引的内存，可以有效提高索引的查询效率</li>
+<li>覆盖索引优化<br>建立覆盖索引，减少二级索引的回表次数</li>
+<li>主键索引自增<br>尽量使用自增的字段建立主键索引，这样每次插入一条新数据的时候都是，追加操作，不用重新移动数据，加入使用非自增的主键，有可能导致新的数据插入到某个数据页的中间，导致页分裂，降低效率</li>
+<li>防止索引失效<br>尽量避免索引失效的查询，具体可见索引失效的常见</li>
+</ul>
+<h2 id="4-索引失效场景"><a href="#4-索引失效场景" class="headerlink" title="4. 索引失效场景"></a>4. 索引失效场景</h2><p>首先我们介绍一下MyISAM和InnoDB两种引擎的B+树区别：</p>
+<ol>
+<li>MyISAM的B+树存放的是数据的地址</li>
+<li>InnoDB的B+树存放的是实际数据</li>
+</ol>
+<ul>
+<li><p>使用左模糊匹配<br>我们知道，B+树的索引是根据索引值进行大小比较的，如果采用左模糊匹配，则无法利用索引的有序性</p>
+</li>
+<li><p>对索引值进行了表达式或者函数<br>索引是对字段的原始值建立的，一旦对索引值进行了表达式或者函数的计算之后，它就无法</p>
+</li>
+<li><p>对索引发生了隐式变化<br>Mysql中的字符串与数字进行比较时，会自动将字符转化为数字然后进行比较，因此这里与索引字段表达式或函数计算一般，发生失效</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> phone <span class="operator">=</span> <span class="number">12345678910</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> &quot;1&quot;;</span><br></pre></td></tr></table></figure>
+<p>这里两条sql语句哪一条会发生索引失效？答案是第一条，因为会把varchar的phone做一次隐式转化，导致索引失效了</p>
+</li>
+<li><p>不遵循索引最左匹配原则<br>字面意思，上文已经介绍过了</p>
+</li>
+<li><p>WHERE子句中的OR<br>其实这个比较好理解</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> age <span class="operator">=</span> <span class="number">15</span> <span class="keyword">or</span> name <span class="operator">=</span> &quot;Li Lei&quot;;</span><br></pre></td></tr></table></figure>
+<p>简单理解就是，如果只有一个age有索引的话对这个结果没有用，因为根据name还是要全表扫描，只有两个字段都有索引不会使得索引失效</p>
+</li>
+</ul>
+<h2 id="深度分页问题"><a href="#深度分页问题" class="headerlink" title="深度分页问题"></a>深度分页问题</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> id limit <span class="number">0</span>, <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<p>对于这么一条sql语句我们称之为分页查询，它的底层原理是什么？</p>
+<ul>
+<li>根据主键索引, 找到对应的行数据，全部返回给server层</li>
+<li>server层跳过前offset条记录，读取n条记录</li>
+</ul>
+<p>因此我们可以发现一旦offset变得很大的时候，他会带来很大的开销，同时如果更为一下情况</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> user_name limit <span class="number">60000</span>, <span class="number">10</span>；</span><br></pre></td></tr></table></figure>
+<p>我们可以给user_name建立二级索引，但是这样相比与主键而言又多了回表的开销，因此性能非常低</p>
+<p><strong>如何解决？</strong></p>
+<ul>
+<li>尽量从业务层面减少深度分页的情况</li>
+<li>每次从上次的最大下标处开始select 比如 where id &gt; ?</li>
+</ul>
 
   </div>
 </article>
@@ -270,7 +352,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mysq%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">mysq索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.</span> <span class="toc-text">1.索引的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-B-Tree"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 B+Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 联合索引的最左匹配原则</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mysq%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">mysq索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.</span> <span class="toc-text">1.索引的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-B-Tree"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 B+Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 联合索引的最左匹配原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E7%B4%A2%E5%BC%95%E5%8C%BA%E5%88%86%E5%BA%A6"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 索引区分度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%BB%BA%E7%AB%8B"><span class="toc-number">1.2.</span> <span class="toc-text">2. 索引的建立</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%BC%98%E5%8C%96%E7%B4%A2%E5%BC%95%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">3. 优化索引的方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%9C%BA%E6%99%AF"><span class="toc-number">1.4.</span> <span class="toc-text">4. 索引失效场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E9%97%AE%E9%A2%98"><span class="toc-number">1.5.</span> <span class="toc-text">深度分页问题</span></a></li></ol></li></ol>
       </div>
     
 
