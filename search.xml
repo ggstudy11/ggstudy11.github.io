@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>mysql-事务</title>
+      <link href="/2025/05/18/mysql-%E4%BA%8B%E5%8A%A1/"/>
+      <url>/2025/05/18/mysql-%E4%BA%8B%E5%8A%A1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="mysql事务"><a href="#mysql事务" class="headerlink" title="mysql事务"></a>mysql事务</h1><blockquote><p>我们为什么需要事务？思考以下这个场景，在银行转账时，user A 向 user B 转账100元，<br>此过程需要涉及两个操作，user A -100 user B +100，<br>但是如果在用户A扣完钱，B还没有收到钱的时候，发生意外故障，导致B没有收到钱，那么就凭空少了100，<br>我们不想发生这样的场景，因此提出了事务的概念</p></blockquote><h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h2><p>事务简单来说就是指一组操作要么同时发生，要么都不发生(发生错误时), 事务具有ACID特点：</p><ul><li>原子性：一个事务中的操作要么全部发生，要么全部不发生</li><li>一致性：事务操作前后，数据满足完整性约束</li><li>隔离性：数据库允许多个并发的事务，同时对其数据进行读写和修改的能力</li><li>持久性：事务结束后，对数据的修改是永久的</li></ul><blockquote><p>原子性：undo log<br>持久性：redo log<br>隔离性：mvcc + 锁<br>一致性：其他几个性质</p></blockquote><h2 id="2-并发事务可能产生的问题"><a href="#2-并发事务可能产生的问题" class="headerlink" title="2. 并发事务可能产生的问题"></a>2. 并发事务可能产生的问题</h2><h3 id="2-1-脏读"><a href="#2-1-脏读" class="headerlink" title="2.1 脏读"></a>2.1 脏读</h3><p>当一个事务读取到另一个事务还未提交的数据时，这就是脏读</p><h3 id="2-2-不可重复读"><a href="#2-2-不可重复读" class="headerlink" title="2.2 不可重复读"></a>2.2 不可重复读</h3><p>在一个事务中多次读取一个数据，如果出现了前后两次数据不一致的情况下，就是不可重复读</p><h3 id="2-3-幻读"><a href="#2-3-幻读" class="headerlink" title="2.3 幻读"></a>2.3 幻读</h3><p>在一个事务中多次查询符合某一筛选条件的记录数量时，出现了前后两次查询到的数量不一致的情况</p><h2 id="3-事务的隔离级别"><a href="#3-事务的隔离级别" class="headerlink" title="3. 事务的隔离级别"></a>3. 事务的隔离级别</h2><ul><li>读未提交：脏读、不可重复读、幻读</li><li>读提交：不可重复读、幻读</li><li>可重复读：幻读</li><li>串行化：幻读</li></ul><h2 id="4-Read-View在MVCC中的作用"><a href="#4-Read-View在MVCC中的作用" class="headerlink" title="4. Read View在MVCC中的作用"></a>4. Read View在MVCC中的作用</h2><p>首先我们先来介绍一下Read View的四个字段：</p><ul><li>creator_trx_id ： 创建该Read View的事务id</li><li>m_ids          ： 创建该Read View时，活跃的事务id(已开启但是仍未提交的事务id)</li><li>min_trx_id     ： 创建该Read View时，最小的活跃id</li><li>max_trx_id     ： 创建该Read View时，数据库应该赋下一个事务id的值</li></ul><p>具体是如何根据这四个字段进行，版本选取的呢？</p><blockquote><p>我们知道每个行数据存在隐藏字段：trx_id，这表示最新操作的事务id，同时还有roll_pointer指向上一个版本</p></blockquote><ul><li>如果trx_id 比 min_trx_id 小 那么代表该事务在rv创建之前已提交，因此该数据是可见的</li><li>如果trx_id 比 max_trx_id 大 代表该事务是在rv创建后创建的，因此该数据不可见</li><li>如果trx_id 位于 min - max 之间，如果该出现在m_ids，代表时创建时活跃的事务，因此不可见</li><li>如果trx_id 位于 min - max 之间，如果未出现在m_ids，代表已经提交，可见</li></ul><p>核心就是：如果存在m_ids中必然不可见，如果不存在且小于max_trx_id，代表创建rv时已提交，是可见的</p><h2 id="5-可重复读的实现"><a href="#5-可重复读的实现" class="headerlink" title="5. 可重复读的实现"></a>5. 可重复读的实现</h2><p>具体来说就是开启事务时创建一个read view，此后都根据该read view进行读数据</p><h2 id="6-读提交的实现"><a href="#6-读提交的实现" class="headerlink" title="6. 读提交的实现"></a>6. 读提交的实现</h2><p>具体来说就是每次select时创建一个read view，根据该read view 进行数据读取</p><h2 id="7-可重复读解决了幻读问题吗？"><a href="#7-可重复读解决了幻读问题吗？" class="headerlink" title="7. 可重复读解决了幻读问题吗？"></a>7. 可重复读解决了幻读问题吗？</h2><blockquote><p>先说结论，可重复读并没有完全解决幻读问题</p></blockquote><p>简单来说，先进行快照读，再进行当前读会导致幻读问题。</p><p>两一种情况是，先进行了一次快照读，另一个事务插入了值，然后当前事务对该值所在的数据进行了一次update，导致trx_id发生改变，因此再次进行快照读的时候会被看到，产生幻读</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> mysql </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> mysql事务 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>mysql-索引</title>
       <link href="/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/"/>
       <url>/2025/05/17/mysql-%E7%B4%A2%E5%BC%95/</url>
